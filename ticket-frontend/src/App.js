@@ -5,6 +5,7 @@ import TicketListPage from "./pages/TicketListPage";
 import CreateTicketPage from "./pages/CreateTicketPage";
 import TicketDetailPage from "./pages/TicketDetailPage";
 import Dashboard from "./pages/Dashboard";
+import NewTicketPage from "./pages/NewTicketPage";
 
 
 
@@ -17,6 +18,7 @@ function App() {
                 <Route path="/login" element={<Login />} />
                 <Route path="/tickets" element={token ? <TicketListPage /> : <Navigate to="/login" />} />
                 <Route path="/create" element={token ? <CreateTicketPage /> : <Navigate to="/login" />} />
+                <Route path="/new" element={token ? <NewTicketPage /> : <Navigate to="/login" />} />
                 <Route path="*" element={<Navigate to={token ? "/tickets" : "/login"} />} />
                 <Route path="/tickets/:id" element={<TicketDetailPage />} />
                 <Route path="/dashboard" element={<Dashboard />} />

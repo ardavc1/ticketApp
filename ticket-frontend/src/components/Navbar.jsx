@@ -48,7 +48,7 @@ const Navbar = () => {
     const navItems = [
         { label: "Dashboard", path: "/dashboard" },
         { label: "Taleplerim", path: "/tickets" },
-        { label: "Yeni Talep", path: "/create" },
+        { label: "Yeni Talep", path: "/new" },
 
     ];
 
