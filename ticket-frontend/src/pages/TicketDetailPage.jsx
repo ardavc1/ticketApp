@@ -5,7 +5,6 @@ import {
     Container,
     Grid,
     Paper,
-    Divider,
     Chip,
     Tabs,
     Tab,
@@ -67,111 +66,96 @@ const TicketDetailPage = () => {
         <>
             <Navbar />
             <Container maxWidth="xl" sx={{ mt: 4 }}>
-                <Box>
-                    {/* Üst Bilgi ve Sekmeler */}
-                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
-                        <Box>
-                            <Typography variant="h6">
-                                #{ticket.id} {ticket.title}
-                            </Typography>
-                            <Typography variant="body2" color="text.secondary">
-                                yapan <b>{ticket.createdBy || "Kullanıcı"}</b> | Tarih: {" "}
-                                {new Date(ticket.createdAt).toLocaleString("tr-TR")}
-                            </Typography>
-                        </Box>
-                        <Chip
-                            label={`Talep ${priorityMap[ticket.priority]?.toUpperCase() || "SLA"}`}
-                            sx={{
-                                bgcolor: getPriorityColor(ticket.priority),
-                                color: "white",
-                                fontWeight: "bold",
-                                px: 2,
-                                py: 1,
-                                fontSize: "0.875rem",
-                            }}
-                        />
+                {/* Üst Bilgi ve Sekmeler */}
+                <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
+                    <Box>
+                        <Typography variant="h6">
+                            #{ticket.id} {ticket.title}
+                        </Typography>
+                        <Typography variant="body2" color="text.secondary">
+                            yapan <b>{ticket.createdBy || "Kullanıcı"}</b> | Tarih: {" "}
+                            {new Date(ticket.createdAt).toLocaleString("tr-TR")}
+                        </Typography>
+                        <Tabs value={tabIndex} onChange={handleTabChange} sx={{ mt: 2 }}>
+                            <Tab label="Ayrıntılar" />
+                            <Tab label="Konuşmalar" />
+                            <Tab label="Geçmiş" />
+                        </Tabs>
                     </Box>
 
-                    {/* Sekmeler */}
-                    <Tabs value={tabIndex} onChange={handleTabChange} sx={{ mb: 2 }}>
-                        <Tab label="Ayrıntılar" />
-                        <Tab label="Konuşmalar" />
-                        <Tab label="Geçmiş" />
-                    </Tabs>
+                    <Chip
+                        label={`Talep ${priorityMap[ticket.priority] + " SLA"}`}
+                        sx={{
+                            bgcolor: getPriorityColor(ticket.priority),
+                            color: "white",
+                            fontWeight: "bold",
+                            px: 2,
+                            py: 1,
+                            fontSize: "0.875rem",
+                        }}
+                    />
                 </Box>
 
-                {/* Ana İçerik */}
-                <Grid container spacing={4} justifyContent="space-between">
+                {/* İçerik ve Talep Bilgileri */}
+                <Box display="flex" gap={3}>
                     {/* Sol Panel */}
-                    <Grid item xs={12} lg={9}>
+                    <Box flex={1}>
                         <Paper sx={{ p: 3 }}>
-                            <Box>
-                                {tabIndex === 0 && (
-                                    <>
-                                        <Typography variant="subtitle2" gutterBottom>
-                                            Açıklama
-                                        </Typography>
-                                        <Box
-                                            sx={{
-                                                backgroundColor: "#f5f5f5",
-                                                borderRadius: 2,
-                                                p: 2,
-                                                mb: 2,
-                                                minHeight: 120,
-                                                width: "100%",
-                                                whiteSpace: "pre-wrap",
-                                                fontSize: "1rem",
-                                                lineHeight: 1.6,
-                                            }}
-                                        >
-                                            {ticket.description || "-"}
-                                        </Box>
-                                        <Button variant="outlined">CEVAPLA</Button>
-                                    </>
-                                )}
-
-                                {tabIndex === 1 && (
-                                    <>
-                                        <Typography variant="subtitle2" gutterBottom>
-                                            Konuşmalar
-                                        </Typography>
-                                        <Paper variant="outlined" sx={{ p: 2, mb: 1 }}>
-                                            <b>System</b> – {new Date(ticket.createdAt).toLocaleString("tr-TR")}
-                                            <br />
-                                            Ticket oluşturuldu.
-                                        </Paper>
-
-                                        {ticket.updatedAt && (
-                                            <Paper variant="outlined" sx={{ p: 2 }}>
-                                                <b>System</b> – {new Date(ticket.updatedAt).toLocaleString("tr-TR")}
-                                                <br />
-                                                Ticket güncellendi.
-                                            </Paper>
-                                        )}
-                                    </>
-                                )}
-
-                                {tabIndex === 2 && (
-                                    <Typography variant="body2" color="text.secondary">
-                                        Geçmiş bilgileri yakında burada olacak.
+                            {tabIndex === 0 && (
+                                <>
+                                    <Typography variant="subtitle2" gutterBottom>
+                                        Açıklama
                                     </Typography>
-                                )}
-                            </Box>
+                                    <Box
+                                        sx={{
+                                            backgroundColor: "#f5f5f5",
+                                            borderRadius: 2,
+                                            p: 2,
+                                            mb: 2,
+                                            minHeight: 120,
+                                            width: "100%",
+                                            whiteSpace: "pre-wrap",
+                                            fontSize: "1rem",
+                                            lineHeight: 1.6,
+                                        }}
+                                    >
+                                        {ticket.description || "-"}
+                                    </Box>
+                                    <Button variant="outlined">CEVAPLA</Button>
+                                </>
+                            )}
+
+                            {tabIndex === 1 && (
+                                <>
+                                    <Typography variant="subtitle2" gutterBottom>
+                                        Konuşmalar
+                                    </Typography>
+                                    <Paper variant="outlined" sx={{ p: 2, mb: 1 }}>
+                                        <b>System</b> – {new Date(ticket.createdAt).toLocaleString("tr-TR")}
+                                        <br />
+                                        Ticket oluşturuldu.
+                                    </Paper>
+                                    {ticket.updatedAt && (
+                                        <Paper variant="outlined" sx={{ p: 2 }}>
+                                            <b>System</b> – {new Date(ticket.updatedAt).toLocaleString("tr-TR")}
+                                            <br />
+                                            Ticket güncellendi.
+                                        </Paper>
+                                    )}
+                                </>
+                            )}
+
+                            {tabIndex === 2 && (
+                                <Typography variant="body2" color="text.secondary">
+                                    Geçmiş bilgileri yakında burada olacak.
+                                </Typography>
+                            )}
                         </Paper>
-                    </Grid>
+                    </Box>
 
                     {/* Sağ Panel */}
-                    <Grid item xs={12} lg={3}>
-                        <Box
-                            component={Paper}
-                            elevation={3}
-                            sx={{
-                                p: 3,
-                                backgroundColor: "#fafafa",
-                                height: "100%",
-                                borderRadius: 3,
-                            }}
-                        >
+                    <Box width={300}>
+                        <Paper sx={{ p: 3, backgroundColor: "#fafafa", borderRadius: 3 }}>
                             <Typography variant="subtitle1" fontWeight="bold" mb={2}>
                                 Talep Bilgileri
                             </Typography>
@@ -214,9 +198,9 @@ const TicketDetailPage = () => {
                                     {new Date(ticket.createdAt).toLocaleString("tr-TR")}
                                 </Typography>
                             </Box>
-                        </Box>
-                    </Grid>
-                </Grid>
+                        </Paper>
+                    </Box>
+                </Box>
             </Container>
         </>
     );
