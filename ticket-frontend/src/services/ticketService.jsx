@@ -44,7 +44,7 @@ export const getMyTickets = async () => {
 };
 export const createTicket = async (ticketData) => {
     const token = localStorage.getItem("token");
-    const response = await axios.post("/api/tickets", ticketData, {
+    const response = await axios.post("http://localhost:8080/api/tickets", ticketData, {
         headers: {
             Authorization: `Bearer ${token}`,
         },

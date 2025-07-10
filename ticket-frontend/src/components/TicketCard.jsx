@@ -31,6 +31,17 @@ const TicketCard = ({ ticket }) => {
                 <Typography variant="caption" color="text.secondary" mt={1} display="block">
                     Oluşturuldu: {format(new Date(ticket.createdAt), "Pp")}
                 </Typography>
+                <Chip
+                    label={ticket.priority === "LOW" ? "Düşük" : ticket.priority === "HIGH" ? "Yüksek" : "Orta"}
+                    color={
+                        ticket.priority === "LOW"
+                            ? "default"
+                            : ticket.priority === "HIGH"
+                                ? "error"
+                                : "warning"
+                    }
+                    size="small"
+                />
             </CardContent>
 
             <Box sx={{ minWidth: 100, textAlign: "right" }}>
