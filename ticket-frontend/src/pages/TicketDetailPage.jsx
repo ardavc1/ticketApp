@@ -1,46 +1,55 @@
-// TicketDetailPage.jsx
 import React, { useEffect, useState } from "react";
-import { useParams, useNavigate } from "react-router-dom";
 import {
-    Container,
-    Typography,
-    Paper,
-    Button,
     Box,
+    Typography,
+    Container,
+    Grid,
+    Paper,
+    Divider,
     Chip,
-    CircularProgress,
+    Tabs,
+    Tab,
+    Button,
 } from "@mui/material";
-import { getTicketById, toggleTicketStatus } from "../services/ticketService";
+import { useParams } from "react-router-dom";
+import Navbar from "../components/Navbar";
+import { getTicketById } from "../services/ticketService";
 
-const priorityColors = {
-    LOW: "default",
-    MEDIUM: "warning",
-    HIGH: "error",
+const priorityMap = {
+    LOW: "Düşük",
+    MEDIUM: "Orta",
+    HIGH: "Yüksek",
+};
+
+const statusMap = {
+    OPEN: "Açık",
+    CLOSED: "Kapalı",
+};
+
+const getPriorityColor = (priority) => {
+    switch (priority) {
+        case "LOW":
+            return "#4caf50";
+        case "MEDIUM":
+            return "#fb8c00";
+        case "HIGH":
+            return "#f44336";
+        default:
+            return "#757575";
+    }
 };
 
 const TicketDetailPage = () => {
     const { id } = useParams();
-    const navigate = useNavigate();
     const [ticket, setTicket] = useState(null);
-    const [loading, setLoading] = useState(true);
+    const [tabIndex, setTabIndex] = useState(0);
 
     const fetchTicket = async () => {
         try {
             const data = await getTicketById(id);
             setTicket(data);
-        } catch (error) {
-            console.error("Talep alınamadı", error);
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const handleToggleStatus = async () => {
-        try {
-            await toggleTicketStatus(id);
-            fetchTicket();
-        } catch (error) {
-            console.error("Durum değiştirilemedi", error);
+        } catch (e) {
+            console.error(e);
         }
     };
 
@@ -48,82 +57,168 @@ const TicketDetailPage = () => {
         fetchTicket();
     }, [id]);
 
-    if (loading || !ticket) {
-        return (
-            <Container maxWidth="sm" style={{ marginTop: 40 }}>
-                <CircularProgress />
-            </Container>
-        );
-    }
+    const handleTabChange = (_, newValue) => {
+        setTabIndex(newValue);
+    };
+
+    if (!ticket) return <Container sx={{ mt: 5 }}>Yükleniyor...</Container>;
 
     return (
-        <Container maxWidth="sm" style={{ marginTop: 40 }}>
-            <Paper elevation={4} style={{ padding: 32, borderRadius: 16 }}>
-                <Typography variant="h4" gutterBottom>
-                    {ticket.title}
-                </Typography>
-                <Typography variant="body1" gutterBottom>
-                    {ticket.description}
-                </Typography>
-
-                <Box display="flex" flexDirection="column" gap={1} mt={2}>
-                    <Box>
-                        <Typography variant="subtitle2">Durum:</Typography>
+        <>
+            <Navbar />
+            <Container maxWidth="xl" sx={{ mt: 4 }}>
+                <Box>
+                    {/* Üst Bilgi ve Sekmeler */}
+                    <Box display="flex" justifyContent="space-between" alignItems="center" mb={1}>
+                        <Box>
+                            <Typography variant="h6">
+                                #{ticket.id} {ticket.title}
+                            </Typography>
+                            <Typography variant="body2" color="text.secondary">
+                                yapan <b>{ticket.createdBy || "Kullanıcı"}</b> | Tarih: {" "}
+                                {new Date(ticket.createdAt).toLocaleString("tr-TR")}
+                            </Typography>
+                        </Box>
                         <Chip
-                            label={ticket.status === "OPEN" ? "Açık" : "Kapalı"}
-                            color={ticket.status === "OPEN" ? "success" : "error"}
-                            size="small"
+                            label={`Talep ${priorityMap[ticket.priority]?.toUpperCase() || "SLA"}`}
+                            sx={{
+                                bgcolor: getPriorityColor(ticket.priority),
+                                color: "white",
+                                fontWeight: "bold",
+                                px: 2,
+                                py: 1,
+                                fontSize: "0.875rem",
+                            }}
                         />
                     </Box>
 
-                    <Box>
-                        <Typography variant="subtitle2">Öncelik:</Typography>
-                        <Chip
-                            label={
-                                ticket.priority === "LOW"
-                                    ? "Düşük"
-                                    : ticket.priority === "HIGH"
-                                        ? "Yüksek"
-                                        : "Orta"
-                            }
-                            color={priorityColors[ticket.priority] || "default"}
-                            size="small"
-                        />
-                    </Box>
-
-                    <Box>
-                        <Typography variant="subtitle2">Atanan:</Typography>
-                        <Typography variant="body2">
-                            {ticket.assignedTo || "Belirtilmedi"}
-                        </Typography>
-                    </Box>
-
-                    <Box>
-                        <Typography variant="subtitle2">Oluşturulma Tarihi:</Typography>
-                        <Typography variant="body2">
-                            {new Date(ticket.createdAt).toLocaleString("tr-TR", {
-                                year: "numeric",
-                                month: "2-digit",
-                                day: "2-digit",
-                                hour: "2-digit",
-                                minute: "2-digit",
-                            })}
-                        </Typography>
-                    </Box>
+                    {/* Sekmeler */}
+                    <Tabs value={tabIndex} onChange={handleTabChange} sx={{ mb: 2 }}>
+                        <Tab label="Ayrıntılar" />
+                        <Tab label="Konuşmalar" />
+                        <Tab label="Geçmiş" />
+                    </Tabs>
                 </Box>
 
-                <Box mt={4} display="flex" gap={2}>
-                    <Button
-                        variant="contained"
-                        color={ticket.status === "OPEN" ? "error" : "success"}
-                        onClick={handleToggleStatus}
-                    >
-                        {ticket.status === "OPEN" ? "Kapat" : "Açık Yap"}
-                    </Button>
-                    <Button variant="outlined" onClick={() => navigate("/tickets")}>Geri Dön</Button>
-                </Box>
-            </Paper>
-        </Container>
+                {/* Ana İçerik */}
+                <Grid container spacing={4} justifyContent="space-between">
+                    {/* Sol Panel */}
+                    <Grid item xs={12} lg={9}>
+                        <Paper sx={{ p: 3 }}>
+                            <Box>
+                                {tabIndex === 0 && (
+                                    <>
+                                        <Typography variant="subtitle2" gutterBottom>
+                                            Açıklama
+                                        </Typography>
+                                        <Box
+                                            sx={{
+                                                backgroundColor: "#f5f5f5",
+                                                borderRadius: 2,
+                                                p: 2,
+                                                mb: 2,
+                                                minHeight: 120,
+                                                width: "100%",
+                                                whiteSpace: "pre-wrap",
+                                                fontSize: "1rem",
+                                                lineHeight: 1.6,
+                                            }}
+                                        >
+                                            {ticket.description || "-"}
+                                        </Box>
+                                        <Button variant="outlined">CEVAPLA</Button>
+                                    </>
+                                )}
+
+                                {tabIndex === 1 && (
+                                    <>
+                                        <Typography variant="subtitle2" gutterBottom>
+                                            Konuşmalar
+                                        </Typography>
+                                        <Paper variant="outlined" sx={{ p: 2, mb: 1 }}>
+                                            <b>System</b> – {new Date(ticket.createdAt).toLocaleString("tr-TR")}
+                                            <br />
+                                            Ticket oluşturuldu.
+                                        </Paper>
+
+                                        {ticket.updatedAt && (
+                                            <Paper variant="outlined" sx={{ p: 2 }}>
+                                                <b>System</b> – {new Date(ticket.updatedAt).toLocaleString("tr-TR")}
+                                                <br />
+                                                Ticket güncellendi.
+                                            </Paper>
+                                        )}
+                                    </>
+                                )}
+
+                                {tabIndex === 2 && (
+                                    <Typography variant="body2" color="text.secondary">
+                                        Geçmiş bilgileri yakında burada olacak.
+                                    </Typography>
+                                )}
+                            </Box>
+                        </Paper>
+                    </Grid>
+
+                    {/* Sağ Panel */}
+                    <Grid item xs={12} lg={3}>
+                        <Box
+                            component={Paper}
+                            elevation={3}
+                            sx={{
+                                p: 3,
+                                backgroundColor: "#fafafa",
+                                height: "100%",
+                                borderRadius: 3,
+                            }}
+                        >
+                            <Typography variant="subtitle1" fontWeight="bold" mb={2}>
+                                Talep Bilgileri
+                            </Typography>
+
+                            <Box mb={2}>
+                                <Typography variant="caption" color="text.secondary">
+                                    Durum
+                                </Typography>
+                                <Chip
+                                    label={statusMap[ticket.status]}
+                                    size="small"
+                                    sx={{
+                                        ml: 1,
+                                        bgcolor: ticket.status === "OPEN" ? "#90caf9" : "#e0e0e0",
+                                        color: "#000",
+                                        fontWeight: "bold",
+                                    }}
+                                />
+                            </Box>
+
+                            <Box mb={2}>
+                                <Typography variant="caption" color="text.secondary">
+                                    Öncelik
+                                </Typography>
+                                <Typography>{priorityMap[ticket.priority] || "-"}</Typography>
+                            </Box>
+
+                            <Box mb={2}>
+                                <Typography variant="caption" color="text.secondary">
+                                    Atanan Kişi
+                                </Typography>
+                                <Typography>{ticket.assignedTo || "Belirtilmedi"}</Typography>
+                            </Box>
+
+                            <Box>
+                                <Typography variant="caption" color="text.secondary">
+                                    Oluşturulma Tarihi
+                                </Typography>
+                                <Typography>
+                                    {new Date(ticket.createdAt).toLocaleString("tr-TR")}
+                                </Typography>
+                            </Box>
+                        </Box>
+                    </Grid>
+                </Grid>
+            </Container>
+        </>
     );
 };
 
