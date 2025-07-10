@@ -1,47 +1,64 @@
-import React, { useState } from "react";
-import { TextField, Button, Box } from "@mui/material";
+import { useState } from "react";
+import { TextField, Button, Paper, Snackbar, Alert } from "@mui/material";
 import { createTicket } from "../services/ticketService";
 
-const NewTicketForm = ({ onTicketCreated }) => {
-    const [title, setTitle] = useState("");
-    const [description, setDescription] = useState("");
+const NewTicketForm = () => {
+    const [formData, setFormData] = useState({ title: "", description: "" });
+    const [successOpen, setSuccessOpen] = useState(false);
+    const [errorOpen, setErrorOpen] = useState(false);
+
+    const handleChange = (e) => {
+        setFormData({ ...formData, [e.target.name]: e.target.value });
+    };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
         try {
-            const newTicket = await createTicket({ title, description });
-            onTicketCreated(newTicket); // Parent component'e bildir
-            setTitle("");
-            setDescription("");
-        } catch (err) {
-            console.error("Ticket oluşturulamadı", err);
+            await createTicket(formData);
+            setFormData({ title: "", description: "" });
+            setSuccessOpen(true);
+        } catch {
+            setErrorOpen(true);
         }
     };
 
     return (
-        <Box component="form" onSubmit={handleSubmit} mb={3}>
-            <TextField
-                label="Başlık"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                fullWidth
-                margin="normal"
-                required
-            />
-            <TextField
-                label="Açıklama"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-                fullWidth
-                margin="normal"
-                required
-                multiline
-                rows={4}
-            />
-            <Button type="submit" variant="contained" color="primary">
-                Talep Oluştur
-            </Button>
-        </Box>
+        <>
+            <Paper sx={{ p: 3, mb: 4 }}>
+                <form onSubmit={handleSubmit}>
+                    <TextField
+                        label="Başlık *"
+                        name="title"
+                        value={formData.title}
+                        onChange={handleChange}
+                        fullWidth
+                        margin="normal"
+                        required
+                    />
+                    <TextField
+                        label="Açıklama *"
+                        name="description"
+                        value={formData.description}
+                        onChange={handleChange}
+                        fullWidth
+                        margin="normal"
+                        multiline
+                        rows={4}
+                        required
+                    />
+                    <Button type="submit" variant="contained" color="primary">
+                        Talep Oluştur
+                    </Button>
+                </form>
+            </Paper>
+
+            <Snackbar open={successOpen} autoHideDuration={3000} onClose={() => setSuccessOpen(false)}>
+                <Alert severity="success">Talep başarıyla oluşturuldu!</Alert>
+            </Snackbar>
+            <Snackbar open={errorOpen} autoHideDuration={3000} onClose={() => setErrorOpen(false)}>
+                <Alert severity="error">Bir hata oluştu. Lütfen tekrar deneyin.</Alert>
+            </Snackbar>
+        </>
     );
 };
 

@@ -1,19 +1,46 @@
+// components/TicketCard.jsx
 import React from "react";
-import { Card, CardContent, Typography, Chip, Stack } from "@mui/material";
+import { Card, CardContent, Typography, Box, Chip } from "@mui/material";
+import { format } from "date-fns";
+import {useNavigate} from "react-router-dom";
 
 const TicketCard = ({ ticket }) => {
+    const navigate = useNavigate();
+    const getStatusColor = (status) => {
+        return status === "OPEN" ? "success" : "error";
+    };
+
     return (
-        <Card sx={{ mb: 2, p: 2 }}>
-            <CardContent>
-                <Typography variant="h6">{ticket.title}</Typography>
-                <Typography variant="body2" color="text.secondary">
-                    {ticket.description}
+        <Card
+            onClick={() => navigate(`/tickets/${ticket.id}`)}
+            sx={{
+                cursor: "pointer",
+                marginBottom: 2,
+                boxShadow: 3,
+                "&:hover": { boxShadow: 6 },
+                borderRadius: 2,
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: 2,
+            }}
+        >
+            <CardContent sx={{ flex: 1 }}>
+                <Typography variant="h6" gutterBottom>{ticket.title}</Typography>
+                <Typography variant="body2" color="text.secondary">{ticket.description}</Typography>
+                <Typography variant="caption" color="text.secondary" mt={1} display="block">
+                    Oluşturuldu: {format(new Date(ticket.createdAt), "Pp")}
                 </Typography>
-                <Stack direction="row" spacing={2} mt={1}>
-                    <Chip label={ticket.status} color={ticket.status === "OPEN" ? "success" : "default"} />
-                    <Typography variant="caption">Created: {new Date(ticket.createdAt).toLocaleString()}</Typography>
-                </Stack>
             </CardContent>
+
+            <Box sx={{ minWidth: 100, textAlign: "right" }}>
+                <Chip
+                    label={ticket.status === "OPEN" ? "Açık" : "Kapalı"}
+                    color={getStatusColor(ticket.status)}
+                    variant="outlined"
+                    sx={{ fontWeight: "bold" }}
+                />
+            </Box>
         </Card>
     );
 };
