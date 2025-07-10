@@ -1,56 +1,98 @@
-// src/pages/TicketDetailPage.jsx
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
-import { getTicketById } from "../services/ticketService";
+import { useParams, useNavigate } from "react-router-dom";
 import {
     Container,
     Typography,
-    CircularProgress,
-    Box,
-    Chip,
     Paper,
+    CircularProgress,
+    Button,
+    Stack,
 } from "@mui/material";
-import { format } from "date-fns";
+import {getTicketById, toggleTicketStatus, updateTicket} from "../services/ticketService";
 
 const TicketDetailPage = () => {
     const { id } = useParams();
+    const navigate = useNavigate();
+
     const [ticket, setTicket] = useState(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() => {
-        const fetchTicket = async () => {
-            try {
-                const data = await getTicketById(id);
-                setTicket(data);
-            } catch (err) {
-                console.error("Ticket detay alinamadi", err);
-            } finally {
-                setLoading(false);
-            }
-        };
+    const fetchTicket = async () => {
+        try {
+            const data = await getTicketById(id);
+            setTicket(data);
+        } catch (err) {
+            console.error("Ticket alınamadı", err);
+        } finally {
+            setLoading(false);
+        }
+    };
+    const handleToggleStatus = async () => {
+        try {
+            const updatedStatus = ticket.status === "OPEN" ? "CLOSED" : "OPEN";
+            const updated = await updateTicket(ticket.id, {
+                ...ticket,
+                status: updatedStatus,
+            });
+            setTicket(updated);
+        } catch (err) {
+            alert("Durum değiştirilemedi.");
+        }
+    };
 
+    useEffect(() => {
         fetchTicket();
     }, [id]);
 
-    if (loading) return <CircularProgress sx={{ mt: 4 }} />;
+    if (loading) return <CircularProgress />;
 
-    if (!ticket) return <Typography>Ticket bulunamadi.</Typography>;
+    if (!ticket)
+        return (
+            <Typography color="error" variant="h6">
+                Ticket bulunamadı.
+            </Typography>
+        );
 
     return (
-        <Container maxWidth="sm" sx={{ mt: 5 }}>
-            <Paper sx={{ p: 4, boxShadow: 3, borderRadius: 2 }}>
-                <Typography variant="h5" gutterBottom>{ticket.title}</Typography>
-                <Typography variant="body1" paragraph>{ticket.description}</Typography>
-
-                <Box sx={{ display: "flex", gap: 2, flexWrap: "wrap", mb: 2 }}>
-                    <Chip label={`Durum: ${ticket.status}`} color={ticket.status === "OPEN" ? "success" : "error"} />
-                    <Chip label={`Oncelik: ${ticket.priority || "Bilinmiyor"}`} />
-                    <Chip label={`Atanan: ${ticket.assignedTo || "Yok"}`} />
-                </Box>
-
-                <Typography variant="caption" color="text.secondary">
-                    Olusturulma: {format(new Date(ticket.createdAt), "Pp")}
+        <Container maxWidth="sm">
+            <Paper elevation={3} style={{ padding: "24px", marginTop: "32px" }}>
+                <Typography variant="h4" gutterBottom>
+                    {ticket.title}
                 </Typography>
+                <Typography variant="body1" paragraph>
+                    {ticket.description}
+                </Typography>
+
+                <Typography variant="body2">
+                    <strong>Durum:</strong> {ticket.status}
+                </Typography>
+                <Typography variant="body2">
+                    <strong>Öncelik:</strong> {ticket.priority}
+                </Typography>
+                <Typography variant="body2">
+                    <strong>Atanan:</strong> {ticket.assignedTo || "Belirtilmedi"}
+                </Typography>
+                <Typography variant="body2">
+                    <strong>Oluşturulma Tarihi:</strong>{" "}
+                    {new Date(ticket.createdAt).toLocaleString()}
+                </Typography>
+
+                <Stack direction="row" spacing={2} mt={4}>
+                    <Button
+                        variant="contained"
+                        color={ticket.status === "OPEN" ? "error" : "success"}
+                        onClick={handleToggleStatus}
+                    >
+                        {ticket.status === "OPEN" ? "Kapalı Yap" : "Açık Yap"}
+                    </Button>
+
+                    <Button
+                        variant="outlined"
+                        onClick={() => navigate("/tickets")}
+                    >
+                        Geri Dön
+                    </Button>
+                </Stack>
             </Paper>
         </Container>
     );

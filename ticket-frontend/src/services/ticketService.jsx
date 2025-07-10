@@ -1,5 +1,27 @@
 import axios from "axios";
 
+export const toggleTicketStatus = async (ticketId) => {
+    const token = localStorage.getItem("token");
+    const response = await axios.put(
+        `http://localhost:8080/api/tickets/${ticketId}/toggle-status`,
+        {},
+        {
+            headers: { Authorization: `Bearer ${token}` },
+        }
+    );
+    return response.data;
+};
+export const updateTicket = async (id, updatedTicket) => {
+    const token = localStorage.getItem("token");
+    const response = await axios.put(`http://localhost:8080/api/tickets/${id}`, updatedTicket, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    return response.data;
+};
+
+
 export const getTicketById = async (id) => {
     const token = localStorage.getItem("token");
     const response = await axios.get(`http://localhost:8080/api/tickets/${id}`, {
