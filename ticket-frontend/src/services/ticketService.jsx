@@ -1,4 +1,6 @@
 import axios from "axios";
+import authHeader from './authHeader';
+
 
 export const toggleTicketStatus = async (ticketId) => {
     const token = localStorage.getItem("token");
@@ -50,4 +52,14 @@ export const createTicket = async (ticketData) => {
         },
     });
     return response.data;
+};
+
+
+export const deleteTicket = async (id) => {
+    try {
+        const response = await axios.delete(`/api/tickets/${id}`, { headers: authHeader() });
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
 };

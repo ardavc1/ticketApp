@@ -3,11 +3,23 @@ import React from "react";
 import { Card, CardContent, Typography, Box, Chip } from "@mui/material";
 import { format } from "date-fns";
 import {useNavigate} from "react-router-dom";
+import { deleteTicket } from '../services/ticketService';
 
 const TicketCard = ({ ticket }) => {
     const navigate = useNavigate();
     const getStatusColor = (status) => {
         return status === "OPEN" ? "success" : "error";
+    };
+
+    const handleDelete = async () => {
+        if (window.confirm("Bu ticket'ı silmek istediğinizden emin misiniz?")) {
+            try {
+                await deleteTicket(ticket.id);
+                onDelete(ticket.id); // parent'a haber ver
+            } catch (error) {
+                alert("Silme işlemi başarısız oldu.");
+            }
+        }
     };
 
     return (
@@ -42,6 +54,9 @@ const TicketCard = ({ ticket }) => {
                     }
                     size="small"
                 />
+                <Button variant="outlined" color="error" onClick={handleDelete}>
+                    Sil
+                </Button>
             </CardContent>
 
             <Box sx={{ minWidth: 100, textAlign: "right" }}>

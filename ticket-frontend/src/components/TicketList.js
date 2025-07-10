@@ -7,6 +7,10 @@ import { CircularProgress, Typography } from "@mui/material";
 const TicketList = () => {
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
+    const handleDelete = (deletedId) => {
+        setTickets((prev) => prev.filter(ticket => ticket.id !== deletedId));
+    };
+
 
     useEffect(() => {
         const fetchTickets = async () => {
@@ -27,6 +31,7 @@ const TicketList = () => {
 
     return (
         <>
+            <TicketCard ticket={ticket} onDelete={handleDelete} />
             {tickets.length > 0 ? (
                 tickets.map((ticket) => <TicketCard key={ticket.id} ticket={ticket} />)
             ) : (

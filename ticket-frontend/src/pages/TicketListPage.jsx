@@ -4,7 +4,8 @@ import { Container, Typography } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
 import { getMyTickets } from "../services/ticketService";
 import { useNavigate } from "react-router-dom";
-import Navbar from "../components/Navbar"; // ✅ Navbar import edildi
+import Navbar from "../components/Navbar";
+import { deleteTicket } from "../services/ticketService";
 
 const TicketListPage = () => {
     const [tickets, setTickets] = useState([]);
@@ -24,6 +25,19 @@ const TicketListPage = () => {
         };
         fetchTickets();
     }, []);
+
+    const handleDelete = async (id) => {
+        const onay = window.confirm("Bu ticket'ı silmek istediğinizden emin misiniz?");
+        if (!onay) return;
+
+        try {
+            await deleteTicket(id);
+            setTickets((prev) => prev.filter(ticket => ticket.id !== id));
+        } catch (err) {
+            alert("Silme işlemi başarısız oldu.");
+            console.error(err);
+        }
+    };
 
     const columns = [
         { field: "id", headerName: "ID", width: 90 },
@@ -95,19 +109,34 @@ const TicketListPage = () => {
             headerName: "İşlem",
             width: 100,
             renderCell: (params) => (
-                <button
-                    onClick={() => navigate(`/tickets/${params.row.id}`)}
-                    style={{
-                        backgroundColor: "#1976d2",
-                        color: "white",
-                        border: "none",
-                        borderRadius: "4px",
-                        padding: "4px 8px",
-                        cursor: "pointer"
-                    }}
-                >
-                    Detay
-                </button>
+                <div style={{ display: "flex", gap: "8px" }}>
+                    <button
+                        onClick={() => navigate(`/tickets/${params.row.id}`)}
+                        style={{
+                            backgroundColor: "#1976d2",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "4px",
+                            padding: "4px 8px",
+                            cursor: "pointer",
+                        }}
+                    >
+                        Detay
+                    </button>
+                    <button
+                        onClick={() => handleDelete(params.row.id)}
+                        style={{
+                            backgroundColor: "#d32f2f",
+                            color: "white",
+                            border: "none",
+                            borderRadius: "4px",
+                            padding: "4px 8px",
+                            cursor: "pointer",
+                        }}
+                    >
+                        Sil
+                    </button>
+                </div>
             )
         }
     ];

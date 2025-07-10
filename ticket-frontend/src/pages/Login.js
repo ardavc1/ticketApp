@@ -24,9 +24,7 @@ const Login = () => {
             });
 
             const token = res.data.token;
-            localStorage.setItem("token", token); // Token'ı sakla
-
-            // Yönlendirme (örneğin anasayfa)
+            localStorage.setItem("token", token);
             navigate("/dashboard");
         } catch (err) {
             setError("Giriş başarısız. Lütfen bilgilerinizi kontrol edin.");
