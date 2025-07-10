@@ -35,8 +35,9 @@ public class AuthController {
                 ))
                 .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
 
-        String token = jwtUtil.generateToken(String.valueOf(userDetails));
+        String token = jwtUtil.generateToken(userDetails.getUsername());
         return Map.of("token", token);
+
     }
 
     @PostMapping("/register")

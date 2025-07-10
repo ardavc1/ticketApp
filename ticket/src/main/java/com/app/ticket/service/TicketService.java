@@ -1,4 +1,3 @@
-// service/TicketService.java
 package com.app.ticket.service;
 
 import com.app.ticket.model.Ticket;
@@ -8,9 +7,9 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-
 @Service
 public class TicketService {
+
     private final TicketRepository repo;
 
     public TicketService(TicketRepository repo) {
@@ -38,6 +37,11 @@ public class TicketService {
             ticket.setAssignedTo(updatedTicket.getAssignedTo());
             return repo.save(ticket);
         }).orElseThrow();
+    }
+
+
+    public List<Ticket> getTicketsByUsername(String username) {
+        return repo.findByCreatedBy(username);
     }
 
     public void deleteTicket(Long id) {

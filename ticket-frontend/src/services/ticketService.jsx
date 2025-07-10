@@ -9,3 +9,12 @@ export const getMyTickets = async () => {
     });
     return response.data;
 };
+export const createTicket = async (ticketData) => {
+    const token = localStorage.getItem("token");
+    const response = await axios.post("/api/tickets", ticketData, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    return response.data;
+};
