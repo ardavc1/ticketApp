@@ -84,7 +84,7 @@ const TicketDetailPage = () => {
                     </Box>
 
                     <Chip
-                        label={`Talep ${priorityMap[ticket.priority] + " SLA"}`}
+                        label={`Talep ${priorityMap[ticket.priority] + " SLA"}`}s
                         sx={{
                             bgcolor: getPriorityColor(ticket.priority),
                             color: "white",
@@ -160,16 +160,21 @@ const TicketDetailPage = () => {
                                 Talep Bilgileri
                             </Typography>
 
-                            <Box mb={2}>
+                            <Box mb={2} display="flex" alignItems="center">
                                 <Typography variant="caption" color="text.secondary">
                                     Durum
                                 </Typography>
                                 <Chip
-                                    label={statusMap[ticket.status]}
+                                    label={statusMap[ticket.status?.toUpperCase()] || ticket.status || "-"}
                                     size="small"
                                     sx={{
                                         ml: 1,
-                                        bgcolor: ticket.status === "OPEN" ? "#90caf9" : "#e0e0e0",
+                                        bgcolor:
+                                            ticket.status?.toUpperCase() === "OPEN"
+                                                ? "#90caf9"
+                                                : ticket.status?.toUpperCase() === "CLOSED"
+                                                    ? "#e0e0e0"
+                                                    : "#cfd8dc",
                                         color: "#000",
                                         fontWeight: "bold",
                                     }}
