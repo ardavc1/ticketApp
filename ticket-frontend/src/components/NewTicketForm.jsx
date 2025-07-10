@@ -1,149 +1,115 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import {
     Box,
-    Paper,
-    Typography,
-    Grid,
-    TextField,
-    FormControl,
-    InputLabel,
-    Select,
-    MenuItem,
     Button,
+    TextField,
+    MenuItem,
+    Typography,
 } from "@mui/material";
-import { createTicket } from "../services/ticketService";
 
-const NewTicketForm = ({ onTicketCreated, selectedType }) => {
+const priorities = ["Düşük", "Orta", "Yüksek"];
+
+const NewTicketForm = () => {
     const [form, setForm] = useState({
         title: "",
         description: "",
-        priority: "MEDIUM",
-        category: "",
+        priority: "Orta",
         assignee: "",
     });
 
-    useEffect(() => {
-        if (selectedType) {
-            setForm((prev) => ({ ...prev, category: selectedType }));
-        }
-    }, [selectedType]);
-
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setForm((prev) => ({ ...prev, [name]: value }));
+        setForm({ ...form, [e.target.name]: e.target.value });
     };
 
-    const handleSubmit = async (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
-        try {
-            const newTicket = await createTicket(form);
-            if (typeof onTicketCreated === "function") {
-                onTicketCreated(newTicket);
-            }
-            alert("Talep başarıyla oluşturuldu!");
-            setForm({
-                title: "",
-                description: "",
-                priority: "MEDIUM",
-                category: selectedType || "",
-                assignee: "",
-            });
-        } catch (error) {
-            console.error(error);
-            alert("Talep oluşturulamadı.");
-        }
+        console.log("Form gönderildi:", form);
+        // gönderme işlemi buraya gelecek
     };
 
     return (
         <Box
-            display="flex"
-            justifyContent="center"
-            alignItems="flex-start"
-            py={6}
-            px={2}
-            bgcolor="#f9f9f9" // Hafif gri arka plan istersen; saf beyaz istiyorsan sil
-            minHeight="100vh"
+            component="form"
+            onSubmit={handleSubmit}
+            sx={{
+                width: "100%",
+                maxWidth: 500,
+                p: 4,
+                borderRadius: 2,
+                backdropFilter: "blur(4px)",
+                backgroundColor: "rgba(255, 255, 255, 0.05)", // şeffaf arka plan
+                boxShadow: "0 0 20px rgba(0,0,0,0.2)",
+            }}
         >
-            <Paper
-                elevation={2}
-                sx={{
-                    p: 4,
-                    width: "100%",
-                    maxWidth: 600,
-                    bgcolor: "#fff",
-                    borderRadius: 2,
-                }}
+            <Typography variant="h6" mb={2} color="white" fontWeight="bold">
+                Yeni Talep Oluştur
+            </Typography>
+
+            <TextField
+                name="title"
+                label="Başlık *"
+                fullWidth
+                required
+                value={form.title}
+                onChange={handleChange}
+                margin="normal"
+                variant="outlined"
+                InputLabelProps={{ style: { color: "#fff" } }}
+                InputProps={{ style: { color: "#fff" } }}
+            />
+
+            <TextField
+                name="description"
+                label="Açıklama *"
+                fullWidth
+                required
+                multiline
+                rows={4}
+                value={form.description}
+                onChange={handleChange}
+                margin="normal"
+                variant="outlined"
+                InputLabelProps={{ style: { color: "#fff" } }}
+                InputProps={{ style: { color: "#fff" } }}
+            />
+
+            <TextField
+                name="priority"
+                label="Öncelik"
+                select
+                fullWidth
+                value={form.priority}
+                onChange={handleChange}
+                margin="normal"
+                InputLabelProps={{ style: { color: "#fff" } }}
+                InputProps={{ style: { color: "#fff" } }}
             >
-                <Typography variant="h6" mb={3} fontWeight={600}>
-                    Yeni Talep Oluştur
-                </Typography>
-                <form onSubmit={handleSubmit}>
-                    <Grid container spacing={2}>
-                        <Grid item xs={12}>
-                            <TextField
-                                label="Başlık"
-                                name="title"
-                                value={form.title}
-                                onChange={handleChange}
-                                fullWidth
-                                required
-                            />
-                        </Grid>
+                {priorities.map((option) => (
+                    <MenuItem key={option} value={option}>
+                        {option}
+                    </MenuItem>
+                ))}
+            </TextField>
 
-                        <Grid item xs={12}>
-                            <TextField
-                                label="Açıklama"
-                                name="description"
-                                value={form.description}
-                                onChange={handleChange}
-                                multiline
-                                rows={4}
-                                fullWidth
-                                required
-                            />
-                        </Grid>
+            <TextField
+                name="assignee"
+                label="Atanacak Kişi"
+                fullWidth
+                value={form.assignee}
+                onChange={handleChange}
+                margin="normal"
+                InputLabelProps={{ style: { color: "#fff" } }}
+                InputProps={{ style: { color: "#fff" } }}
+            />
 
-                        <Grid item xs={12}>
-                            <FormControl fullWidth>
-                                <InputLabel>Öncelik</InputLabel>
-                                <Select
-                                    name="priority"
-                                    value={form.priority}
-                                    onChange={handleChange}
-                                    label="Öncelik"
-                                >
-                                    <MenuItem value="LOW">Düşük</MenuItem>
-                                    <MenuItem value="MEDIUM">Orta</MenuItem>
-                                    <MenuItem value="HIGH">Yüksek</MenuItem>
-                                </Select>
-                            </FormControl>
-                        </Grid>
-
-                        <Grid item xs={12}>
-                            <TextField
-                                label="Atanacak Kişi"
-                                name="assignee"
-                                value={form.assignee}
-                                onChange={handleChange}
-                                fullWidth
-                                placeholder="kullanici@firma.com"
-                            />
-                        </Grid>
-
-                        <Grid item xs={12}>
-                            <Button
-                                type="submit"
-                                variant="contained"
-                                color="primary"
-                                fullWidth
-                                size="large"
-                            >
-                                Talep Oluştur
-                            </Button>
-                        </Grid>
-                    </Grid>
-                </form>
-            </Paper>
+            <Button
+                type="submit"
+                variant="contained"
+                fullWidth
+                sx={{ mt: 2, py: 1.5 }}
+            >
+                TALEP OLUŞTUR
+            </Button>
         </Box>
     );
 };
