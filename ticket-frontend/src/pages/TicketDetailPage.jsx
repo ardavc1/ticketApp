@@ -3,16 +3,17 @@ import {
     Box,
     Typography,
     Container,
-    Grid,
     Paper,
     Chip,
     Tabs,
     Tab,
     Button,
+    TextField,
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { getTicketById } from "../services/ticketService";
+import { getRepliesByTicketId, postReply } from "../services/ticketService"; // reply servisleri
 
 const priorityMap = {
     LOW: "Düşük",
@@ -42,6 +43,10 @@ const TicketDetailPage = () => {
     const { id } = useParams();
     const [ticket, setTicket] = useState(null);
     const [tabIndex, setTabIndex] = useState(0);
+    const [replies, setReplies] = useState([]);
+    const [newReply, setNewReply] = useState("");
+
+    const isAdmin = true; // gerçek projede role-based auth üzerinden kontrol edilmeli
 
     const fetchTicket = async () => {
         try {
@@ -52,12 +57,33 @@ const TicketDetailPage = () => {
         }
     };
 
+    const fetchReplies = async () => {
+        try {
+            const data = await getRepliesByTicketId(id);
+            setReplies(data);
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
     useEffect(() => {
         fetchTicket();
+        fetchReplies();
     }, [id]);
 
     const handleTabChange = (_, newValue) => {
         setTabIndex(newValue);
+    };
+
+    const handleReplySubmit = async () => {
+        if (!newReply.trim()) return;
+        try {
+            const saved = await postReply(id, newReply);
+            setReplies((prev) => [...prev, saved]);
+            setNewReply("");
+        } catch (e) {
+            console.error(e);
+        }
     };
 
     if (!ticket) return <Container sx={{ mt: 5 }}>Yükleniyor...</Container>;
@@ -73,7 +99,7 @@ const TicketDetailPage = () => {
                             #{ticket.id} {ticket.title}
                         </Typography>
                         <Typography variant="body2" color="text.secondary">
-                            yapan <b>{ticket.createdBy || "Kullanıcı"}</b> | Tarih: {" "}
+                            yapan <b>{ticket.createdBy || "Kullanıcı"}</b> | Tarih:{" "}
                             {new Date(ticket.createdAt).toLocaleString("tr-TR")}
                         </Typography>
                         <Tabs value={tabIndex} onChange={handleTabChange} sx={{ mt: 2 }}>
@@ -84,7 +110,7 @@ const TicketDetailPage = () => {
                     </Box>
 
                     <Chip
-                        label={`Talep ${priorityMap[ticket.priority] + " SLA"}`}s
+                        label={`Talep ${priorityMap[ticket.priority] + " SLA"}`}
                         sx={{
                             bgcolor: getPriorityColor(ticket.priority),
                             color: "white",
@@ -113,7 +139,6 @@ const TicketDetailPage = () => {
                                             p: 2,
                                             mb: 2,
                                             minHeight: 120,
-                                            width: "100%",
                                             whiteSpace: "pre-wrap",
                                             fontSize: "1rem",
                                             lineHeight: 1.6,
@@ -121,7 +146,6 @@ const TicketDetailPage = () => {
                                     >
                                         {ticket.description || "-"}
                                     </Box>
-                                    <Button variant="outlined">CEVAPLA</Button>
                                 </>
                             )}
 
@@ -130,17 +154,48 @@ const TicketDetailPage = () => {
                                     <Typography variant="subtitle2" gutterBottom>
                                         Konuşmalar
                                     </Typography>
+
                                     <Paper variant="outlined" sx={{ p: 2, mb: 1 }}>
                                         <b>System</b> – {new Date(ticket.createdAt).toLocaleString("tr-TR")}
                                         <br />
                                         Ticket oluşturuldu.
                                     </Paper>
+
                                     {ticket.updatedAt && (
-                                        <Paper variant="outlined" sx={{ p: 2 }}>
+                                        <Paper variant="outlined" sx={{ p: 2, mb: 1 }}>
                                             <b>System</b> – {new Date(ticket.updatedAt).toLocaleString("tr-TR")}
                                             <br />
                                             Ticket güncellendi.
                                         </Paper>
+                                    )}
+
+                                    {replies.map((reply) => (
+                                        <Paper key={reply.id} variant="outlined" sx={{ p: 2, mb: 1 }}>
+                                            <b>{reply.author?.username || "Cevaplayan"}</b> –{" "}
+                                            {new Date(reply.createdAt).toLocaleString("tr-TR")}
+                                            <br />
+                                            {reply.message}
+                                        </Paper>
+                                    ))}
+
+                                    {isAdmin && (
+                                        <Box mt={2}>
+                                            <TextField
+                                                fullWidth
+                                                label="Cevabınız"
+                                                multiline
+                                                rows={3}
+                                                value={newReply}
+                                                onChange={(e) => setNewReply(e.target.value)}
+                                            />
+                                            <Button
+                                                onClick={handleReplySubmit}
+                                                variant="contained"
+                                                sx={{ mt: 1 }}
+                                            >
+                                                Gönder
+                                            </Button>
+                                        </Box>
                                     )}
                                 </>
                             )}

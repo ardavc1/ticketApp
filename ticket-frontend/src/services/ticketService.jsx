@@ -100,5 +100,29 @@ export const updateTicketStatus = async (ticketId, status) => {
     );
     return response.data;
 };
+export const getRepliesByTicketId = async (ticketId) => {
+    const token = localStorage.getItem("token");
+    const res = await axios.get(`/api/replies/${ticketId}`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    return res.data;
+};
+
+export const postReply = async (ticketId, message) => {
+    const token = localStorage.getItem("token"); // ya da context/token provider üzerinden
+    const res = await axios.post(
+        `/api/replies/${ticketId}`,
+        { message },
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
+    return res.data;
+};
+;
 
 
