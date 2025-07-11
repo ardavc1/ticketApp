@@ -10,7 +10,7 @@ import {
     Box
 } from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import { getMyTickets, deleteTicket } from "../services/ticketService";
+import { getMyTickets } from "../services/ticketService";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 
@@ -33,19 +33,6 @@ const TicketListPage = () => {
         };
         fetchTickets();
     }, []);
-
-    const handleDelete = async (id) => {
-        const onay = window.confirm("Bu ticket'ı silmek istediğinizden emin misiniz?");
-        if (!onay) return;
-
-        try {
-            await deleteTicket(id);
-            setTickets((prev) => prev.filter(ticket => ticket.id !== id));
-        } catch (err) {
-            alert("Silme işlemi başarısız oldu.");
-            console.error(err);
-        }
-    };
 
     const getCategoryColor = (category) => {
         switch (category) {
@@ -154,41 +141,6 @@ const TicketListPage = () => {
                         minute: "2-digit",
                     });
             }
-        },
-        {
-            field: "actions",
-            headerName: "İşlem",
-            width: 100,
-            renderCell: (params) => (
-                <div style={{ display: "flex", gap: "8px" }}>
-                    <button
-                        onClick={() => navigate(`/tickets/${params.row.id}`)}
-                        style={{
-                            backgroundColor: "#1976d2",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "4px",
-                            padding: "4px 8px",
-                            cursor: "pointer",
-                        }}
-                    >
-                        Detay
-                    </button>
-                    <button
-                        onClick={() => handleDelete(params.row.id)}
-                        style={{
-                            backgroundColor: "#d32f2f",
-                            color: "white",
-                            border: "none",
-                            borderRadius: "4px",
-                            padding: "4px 8px",
-                            cursor: "pointer",
-                        }}
-                    >
-                        Sil
-                    </button>
-                </div>
-            )
         }
     ];
 
@@ -200,7 +152,6 @@ const TicketListPage = () => {
                     Taleplerim
                 </Typography>
 
-                {/* 🔍 Kategori Filtresi */}
                 <Box display="flex" justifyContent="flex-end" mb={2}>
                     <FormControl sx={{ minWidth: 200 }}>
                         <InputLabel>Kategori Filtresi</InputLabel>
@@ -226,6 +177,13 @@ const TicketListPage = () => {
                         rowsPerPageOptions={[5, 10, 20]}
                         loading={loading}
                         disableSelectionOnClick
+                        onRowClick={(params) => navigate(`/tickets/${params.row.id}`)}
+                        sx={{
+                            "& .MuiDataGrid-row:hover": {
+                                backgroundColor: "#f5f5f5",
+                                cursor: "pointer"
+                            }
+                        }}
                     />
                 </div>
             </Container>

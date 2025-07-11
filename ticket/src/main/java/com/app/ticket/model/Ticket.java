@@ -16,7 +16,10 @@ public class Ticket {
     private Long id;
 
     private String title;
+
+    @Column(columnDefinition = "TEXT")
     private String description;
+
     private String priority;   // LOW, MEDIUM, HIGH
     private String status;     // OPEN, IN_PROGRESS, CLOSED
     private String category;
