@@ -1,11 +1,13 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Box, Grid, Button, Typography, Paper } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
 import ReportProblemIcon from "@mui/icons-material/ReportProblem";
 import SecurityIcon from "@mui/icons-material/Security";
 import FeedbackIcon from "@mui/icons-material/Feedback";
 import NewTicketForm from "../components/NewTicketForm";
-import Navbar from "../components/Navbar"; // 👈 Senin özel Navbar bileşenin burada çağrılıyor
+import Navbar from "../components/Navbar";
+import { useLocation, useNavigate } from "react-router-dom";
+import queryString from "query-string";
 
 const ticketOptions = [
     {
@@ -35,16 +37,38 @@ const ticketOptions = [
 ];
 
 const NewTicketPage = () => {
+    const location = useLocation();
+    const navigate = useNavigate();
+
+    // URL'den category parametresini al
+    const { category } = queryString.parse(location.search);
     const [selectedType, setSelectedType] = useState(null);
+
+    // URL'deki category varsa otomatik olarak set et
+    useEffect(() => {
+        if (category && ticketOptions.find((t) => t.value === category)) {
+            setSelectedType(category);
+        }
+    }, [category]);
+
+    // Butona tıklanınca URL değişsin ve state güncellensin
+    const handleTypeSelect = (type) => {
+        navigate(`?category=${type}`);
+    };
+
+    const handleBack = () => {
+        setSelectedType(null);
+        navigate("/new");
+    };
 
     return (
         <>
-            <Navbar /> {/* 👈 Kendi Navbar'ını burada çağırıyoruz */}
+            <Navbar />
 
             <Box
                 sx={{
-                    minHeight: "calc(100vh - 64px)", // Navbar yüksekliği dışında tam ekran
-                    background: "linear-gradient(to right, #42a5f5, #7b1fa2)", // Arka plan degrade
+                    minHeight: "calc(100vh - 64px)",
+                    background: "linear-gradient(to right, #42a5f5, #7b1fa2)",
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
@@ -72,7 +96,7 @@ const NewTicketPage = () => {
                                                 transform: "scale(1.05)",
                                             },
                                         }}
-                                        onClick={() => setSelectedType(option.value)}
+                                        onClick={() => handleTypeSelect(option.value)}
                                     >
                                         <Box>{option.icon}</Box>
                                         <Typography variant="h6" mt={1}>
@@ -100,7 +124,7 @@ const NewTicketPage = () => {
                 ) : (
                     <Box width="100%" maxWidth="lg" px={2}>
                         <Button
-                            onClick={() => setSelectedType(null)}
+                            onClick={handleBack}
                             variant="outlined"
                             sx={{ mb: 2, color: "white", borderColor: "white" }}
                         >

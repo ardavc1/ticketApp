@@ -1,15 +1,23 @@
 // src/pages/TicketListPage.jsx
 import React, { useEffect, useState } from "react";
-import { Container, Typography } from "@mui/material";
+import {
+    Container,
+    Typography,
+    Select,
+    MenuItem,
+    FormControl,
+    InputLabel,
+    Box
+} from "@mui/material";
 import { DataGrid } from "@mui/x-data-grid";
-import { getMyTickets } from "../services/ticketService";
+import { getMyTickets, deleteTicket } from "../services/ticketService";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import { deleteTicket } from "../services/ticketService";
 
 const TicketListPage = () => {
     const [tickets, setTickets] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [categoryFilter, setCategoryFilter] = useState("ALL");
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -39,10 +47,53 @@ const TicketListPage = () => {
         }
     };
 
+    const getCategoryColor = (category) => {
+        switch (category) {
+            case "ISSUE": return "#e74c3c";
+            case "REQUEST": return "#27ae60";
+            case "SECURITY": return "#f39c12";
+            case "FEEDBACK": return "#8e44ad";
+            default: return "#95a5a6";
+        }
+    };
+
+    const getCategoryLabel = (category) => {
+        switch (category) {
+            case "ISSUE": return "Sorun";
+            case "REQUEST": return "Talep";
+            case "SECURITY": return "Bilgi Güvenliği";
+            case "FEEDBACK": return "Geri Bildirim";
+            default: return "Bilinmiyor";
+        }
+    };
+
+    const filteredTickets = categoryFilter === "ALL"
+        ? tickets
+        : tickets.filter(ticket => ticket.category === categoryFilter);
+
     const columns = [
         { field: "id", headerName: "ID", width: 90 },
         { field: "title", headerName: "Başlık", flex: 1 },
         { field: "description", headerName: "Açıklama", flex: 2 },
+        {
+            field: "category",
+            headerName: "Kategori",
+            width: 160,
+            renderCell: (params) => (
+                <span
+                    style={{
+                        backgroundColor: getCategoryColor(params.value) + "22",
+                        color: getCategoryColor(params.value),
+                        padding: "4px 10px",
+                        borderRadius: "12px",
+                        fontWeight: 500,
+                        fontSize: "0.875rem"
+                    }}
+                >
+                    {getCategoryLabel(params.value)}
+                </span>
+            )
+        },
         {
             field: "status",
             headerName: "Durum",
@@ -143,14 +194,33 @@ const TicketListPage = () => {
 
     return (
         <>
-            <Navbar /> {/* ✅ Navbar eklendi */}
+            <Navbar />
             <Container maxWidth="lg" sx={{ mt: 4 }}>
                 <Typography variant="h4" gutterBottom>
                     Taleplerim
                 </Typography>
+
+                {/* 🔍 Kategori Filtresi */}
+                <Box display="flex" justifyContent="flex-end" mb={2}>
+                    <FormControl sx={{ minWidth: 200 }}>
+                        <InputLabel>Kategori Filtresi</InputLabel>
+                        <Select
+                            value={categoryFilter}
+                            label="Kategori Filtresi"
+                            onChange={(e) => setCategoryFilter(e.target.value)}
+                        >
+                            <MenuItem value="ALL">Tüm Kategoriler</MenuItem>
+                            <MenuItem value="ISSUE">Sorun</MenuItem>
+                            <MenuItem value="REQUEST">Talep</MenuItem>
+                            <MenuItem value="SECURITY">Bilgi Güvenliği</MenuItem>
+                            <MenuItem value="FEEDBACK">Geri Bildirim</MenuItem>
+                        </Select>
+                    </FormControl>
+                </Box>
+
                 <div style={{ height: 500, width: "100%" }}>
                     <DataGrid
-                        rows={tickets}
+                        rows={filteredTickets}
                         columns={columns}
                         pageSize={5}
                         rowsPerPageOptions={[5, 10, 20]}

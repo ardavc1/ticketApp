@@ -1,115 +1,151 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
     Box,
-    Button,
     TextField,
+    Button,
     MenuItem,
     Typography,
+    Paper,
+    Stack,
 } from "@mui/material";
+import { createTicket } from "../services/ticketService";
 
 const priorities = ["Düşük", "Orta", "Yüksek"];
 
-const NewTicketForm = () => {
+const priorityMap = {
+    Düşük: "LOW",
+    Orta: "MEDIUM",
+    Yüksek: "HIGH",
+};
+
+const NewTicketForm = ({ selectedType, onTicketCreated }) => {
     const [form, setForm] = useState({
         title: "",
         description: "",
         priority: "Orta",
-        assignee: "",
+        assignedTo: "",
+        category: selectedType || "",
+        status: "OPEN",
     });
 
+    useEffect(() => {
+        if (selectedType) {
+            setForm((prev) => ({ ...prev, category: selectedType }));
+        }
+    }, [selectedType]);
+
     const handleChange = (e) => {
-        setForm({ ...form, [e.target.name]: e.target.value });
+        const { name, value } = e.target;
+        setForm((prev) => ({ ...prev, [name]: value }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Form gönderildi:", form);
-        // gönderme işlemi buraya gelecek
+
+        const payload = {
+            ...form,
+            priority: priorityMap[form.priority] || "MEDIUM",
+        };
+
+        try {
+            const newTicket = await createTicket(payload);
+            if (onTicketCreated) {
+                onTicketCreated(newTicket);
+            }
+            alert("Talep başarıyla oluşturuldu!");
+            setForm({
+                title: "",
+                description: "",
+                priority: "Orta",
+                assignedTo: "",
+                category: selectedType || "",
+            });
+        } catch (error) {
+            console.error("Talep gönderilirken hata:", error);
+            alert("Talep oluşturulamadı.");
+        }
     };
 
     return (
         <Box
             component="form"
             onSubmit={handleSubmit}
-            sx={{
-                width: "100%",
-                maxWidth: 500,
-                p: 4,
-                borderRadius: 2,
-                backdropFilter: "blur(4px)",
-                backgroundColor: "rgba(255, 255, 255, 0.05)", // şeffaf arka plan
-                boxShadow: "0 0 20px rgba(0,0,0,0.2)",
-            }}
+            display="flex"
+            justifyContent="center"
+            mt={4}
+            px={2}
         >
-            <Typography variant="h6" mb={2} color="white" fontWeight="bold">
-                Yeni Talep Oluştur
-            </Typography>
-
-            <TextField
-                name="title"
-                label="Başlık *"
-                fullWidth
-                required
-                value={form.title}
-                onChange={handleChange}
-                margin="normal"
-                variant="outlined"
-                InputLabelProps={{ style: { color: "#fff" } }}
-                InputProps={{ style: { color: "#fff" } }}
-            />
-
-            <TextField
-                name="description"
-                label="Açıklama *"
-                fullWidth
-                required
-                multiline
-                rows={4}
-                value={form.description}
-                onChange={handleChange}
-                margin="normal"
-                variant="outlined"
-                InputLabelProps={{ style: { color: "#fff" } }}
-                InputProps={{ style: { color: "#fff" } }}
-            />
-
-            <TextField
-                name="priority"
-                label="Öncelik"
-                select
-                fullWidth
-                value={form.priority}
-                onChange={handleChange}
-                margin="normal"
-                InputLabelProps={{ style: { color: "#fff" } }}
-                InputProps={{ style: { color: "#fff" } }}
+            <Paper
+                elevation={4}
+                sx={{
+                    width: "100%",
+                    maxWidth: 500,
+                    p: 4,
+                    borderRadius: 3,
+                    backgroundColor: "#fff",
+                }}
             >
-                {priorities.map((option) => (
-                    <MenuItem key={option} value={option}>
-                        {option}
-                    </MenuItem>
-                ))}
-            </TextField>
+                <Typography variant="h6" mb={3} fontWeight="bold">
+                    Yeni Talep Formu
+                </Typography>
 
-            <TextField
-                name="assignee"
-                label="Atanacak Kişi"
-                fullWidth
-                value={form.assignee}
-                onChange={handleChange}
-                margin="normal"
-                InputLabelProps={{ style: { color: "#fff" } }}
-                InputProps={{ style: { color: "#fff" } }}
-            />
+                <Stack spacing={3}>
+                    <TextField
+                        label="Kategori"
+                        value={form.category}
+                        fullWidth
+                        disabled
+                    />
 
-            <Button
-                type="submit"
-                variant="contained"
-                fullWidth
-                sx={{ mt: 2, py: 1.5 }}
-            >
-                TALEP OLUŞTUR
-            </Button>
+                    <TextField
+                        name="title"
+                        label="Başlık *"
+                        value={form.title}
+                        onChange={handleChange}
+                        required
+                        fullWidth
+                    />
+
+                    <TextField
+                        name="description"
+                        label="Açıklama *"
+                        value={form.description}
+                        onChange={handleChange}
+                        required
+                        fullWidth
+                        multiline
+                        rows={4}
+                    />
+
+                    <TextField
+                        name="priority"
+                        label="Öncelik"
+                        select
+                        value={form.priority}
+                        onChange={handleChange}
+                        fullWidth
+                    >
+                        {priorities.map((option) => (
+                            <MenuItem key={option} value={option}>
+                                {option}
+                            </MenuItem>
+                        ))}
+                    </TextField>
+
+                    <TextField
+                        name="assignedTo"
+                        label="Atanacak Kişi"
+                        value={form.assignedTo}
+                        onChange={handleChange}
+                        fullWidth
+                        placeholder="kullanici@firma.com"
+                    />
+
+                    <Button type="submit" variant="contained" fullWidth size="large">
+                        Talep Oluştur
+                    </Button>
+                </Stack>
+            </Paper>
         </Box>
     );
 };

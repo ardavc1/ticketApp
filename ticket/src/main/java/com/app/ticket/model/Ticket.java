@@ -19,6 +19,7 @@ public class Ticket {
     private String description;
     private String priority;   // LOW, MEDIUM, HIGH
     private String status;     // OPEN, IN_PROGRESS, CLOSED
+    private String category;
 
     private String assignedTo;
 

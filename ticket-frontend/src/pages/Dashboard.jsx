@@ -25,11 +25,14 @@ const PRIORITY_COLORS = {
     MEDIUM: "#64b5f6",
     HIGH: "#ef5350"
 };
-const TAG_COLORS = {
-    Yazilim: 'primary',
-    Donanim: 'secondary',
-    Destek: 'info',
-    Genel: 'default'
+const CATEGORY_COLORS = {
+    GENEL: "#7e57c2",
+    REQUEST: "#42a5f5",
+    FEEDBACK: "#66bb6a",
+    ISSUE: "#ef5350",
+    SECURITY: "#ab47bc",
+    "BİLGİ GÜVENLİĞİ İHLALİ": "#ab47bc",
+    "GERİ BİLDİRİM": "#26c6da"
 };
 
 const Dashboard = () => {
@@ -62,12 +65,12 @@ const Dashboard = () => {
     }, {});
     const lineChartData = Object.entries(dateData).map(([date, count]) => ({ date, count }));
 
-    const tagData = tickets.reduce((acc, t) => {
-        const tag = t.tag || 'Genel';
-        acc[tag] = (acc[tag] || 0) + 1;
+    const categoryData = tickets.reduce((acc, t) => {
+        const cat = t.category || 'GENEL';
+        acc[cat] = (acc[cat] || 0) + 1;
         return acc;
     }, {});
-    const barChartData = Object.entries(tagData).map(([name, value]) => ({ name, value }));
+    const barChartData = Object.entries(categoryData).map(([name, value]) => ({ name, value }));
 
     return (
         <>
@@ -131,7 +134,13 @@ const Dashboard = () => {
                                 <XAxis dataKey="name" />
                                 <YAxis />
                                 <Tooltip />
-                                <Bar dataKey="value" fill="#5e35b1">
+                                <Bar dataKey="value">
+                                    {barChartData.map((entry, index) => (
+                                        <Cell
+                                            key={`cell-${index}`}
+                                            fill={CATEGORY_COLORS[entry.name.toUpperCase()] || "#5e35b1"}
+                                        />
+                                    ))}
                                     <LabelList dataKey="value" position="top" />
                                 </Bar>
                             </BarChart>
@@ -164,7 +173,7 @@ const Dashboard = () => {
                                             <Stack direction="row" spacing={1} flexWrap="wrap" mt={1}>
                                                 <Chip label={`Durum: ${ticket.status}`} color={STATUS_COLORS[ticket.status]} size="small" />
                                                 <Chip label={`Öncelik: ${ticket.priority}`} size="small" />
-                                                {ticket.tag && <Chip label={`Kategori: ${ticket.tag}`} color={TAG_COLORS[ticket.tag] || 'default'} size="small" />}
+                                                {ticket.category && <Chip label={`Kategori: ${ticket.category}`} size="small" />}
                                                 <Chip label={`Oluşturan: ${ticket.createdBy}`} size="small" />
                                                 <Chip label={`Tarih: ${new Date(ticket.createdAt).toLocaleDateString('tr-TR')}`} size="small" />
                                             </Stack>

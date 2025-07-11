@@ -35,6 +35,7 @@ public class TicketService {
             ticket.setPriority(updatedTicket.getPriority());
             ticket.setStatus(updatedTicket.getStatus());
             ticket.setAssignedTo(updatedTicket.getAssignedTo());
+            ticket.setCategory(updatedTicket.getCategory());
             return repo.save(ticket);
         }).orElseThrow();
     }
