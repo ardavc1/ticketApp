@@ -26,7 +26,8 @@ public class TicketReplyController {
     @Autowired
     private UserRepository userRepository;
 
-    @PreAuthorize("hasRole('ADMIN')")
+
+    @PreAuthorize("hasAnyRole('ADMIN', 'USER')")
     @PostMapping("/{ticketId}")
     public ResponseEntity<TicketReply> addReply(@PathVariable Long ticketId, @RequestBody Map<String, String> payload, Principal principal) {
         Optional<Ticket> ticketOpt = ticketRepository.findById(ticketId);

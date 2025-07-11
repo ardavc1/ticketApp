@@ -111,7 +111,7 @@ export const getRepliesByTicketId = async (ticketId) => {
 };
 
 export const postReply = async (ticketId, message) => {
-    const token = localStorage.getItem("token"); // ya da context/token provider üzerinden
+    const token = localStorage.getItem("token");
     const res = await axios.post(
         `/api/replies/${ticketId}`,
         { message },
@@ -123,6 +123,6 @@ export const postReply = async (ticketId, message) => {
     );
     return res.data;
 };
-;
+
 
 
