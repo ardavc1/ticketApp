@@ -175,7 +175,7 @@ const Dashboard = () => {
                         {recentTickets.map((ticket) => (
                             <React.Fragment key={ticket.id}>
                                 <ListItem button onClick={() => navigate(`/tickets/${ticket.id}`)} alignItems="flex-start">
-                                    <Avatar sx={{ bgcolor: '#1e88e5', mr: 2 }}>{ticket.title.charAt(0).toUpperCase()}</Avatar>
+                                    <Avatar sx={{ bgcolor: '#1e88e5', mr: 2 }}>{ticket.createdBy.charAt(0).toUpperCase() || "?"}</Avatar>
                                     <ListItemText
                                         primary={<Typography variant="subtitle1" fontWeight={500}>{ticket.title}</Typography>}
                                         secondary={
