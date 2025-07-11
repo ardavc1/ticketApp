@@ -18,12 +18,13 @@ public class JwtUtil {
     @Value("${jwt.expiration}")
     private long expiration;
 
-    public String generateToken(String username) {
+    public String generateToken(String username, String role) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expiration * 1000);
 
         return Jwts.builder()
                 .setSubject(username)
+                .claim("role", role) // rolü ekliyoruz
                 .setIssuedAt(now)
                 .setExpiration(expiryDate)
                 .signWith(SignatureAlgorithm.HS256, getSigningKey())
@@ -47,4 +48,14 @@ public class JwtUtil {
         Date expirationDate = Jwts.parser().setSigningKey(getSigningKey()).parseClaimsJws(token).getBody().getExpiration();
         return expirationDate.before(new Date());
     }
+
+    public String getRoleFromToken(String token) {
+        return Jwts.parser()
+                .setSigningKey(getSigningKey())
+                .parseClaimsJws(token)
+                .getBody()
+                .get("role", String.class);
+    }
+
+
 }

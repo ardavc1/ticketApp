@@ -6,8 +6,7 @@ import CreateTicketPage from "./pages/CreateTicketPage";
 import TicketDetailPage from "./pages/TicketDetailPage";
 import Dashboard from "./pages/Dashboard";
 import NewTicketPage from "./pages/NewTicketPage";
-
-
+import ProtectedRoute from "./components/ProtectedRoute";
 
 function App() {
     const token = localStorage.getItem("token");
@@ -15,13 +14,49 @@ function App() {
     return (
         <Router>
             <Routes>
+                {/* Ana sayfa: eğer token varsa tickets'a git, yoksa login'e */}
+                <Route path="/" element={
+                    token ? <Navigate to="/tickets" /> : <Navigate to="/login" />
+                } />
+
+                {/* Giriş sayfası */}
                 <Route path="/login" element={<Login />} />
-                <Route path="/tickets" element={token ? <TicketListPage /> : <Navigate to="/login" />} />
-                <Route path="/create" element={token ? <CreateTicketPage /> : <Navigate to="/login" />} />
-                <Route path="/new" element={token ? <NewTicketPage /> : <Navigate to="/login" />} />
-                <Route path="*" element={<Navigate to={token ? "/tickets" : "/login"} />} />
-                <Route path="/tickets/:id" element={<TicketDetailPage />} />
-                <Route path="/dashboard" element={<Dashboard />} />
+
+                {/* Role tabanlı korunan sayfalar */}
+                <Route path="/dashboard" element={
+                    <ProtectedRoute requiredRoles={["ADMIN"]}>
+                        <Dashboard />
+                    </ProtectedRoute>
+                } />
+
+                <Route path="/tickets" element={
+                    <ProtectedRoute requiredRoles={["ADMIN", "USER"]}>
+                        <TicketListPage />
+                    </ProtectedRoute>
+                } />
+
+                <Route path="/create" element={
+                    <ProtectedRoute requiredRoles={["USER", "ADMIN"]}>
+                        <CreateTicketPage />
+                    </ProtectedRoute>
+                } />
+
+                <Route path="/new" element={
+                    <ProtectedRoute requiredRoles={["USER", "ADMIN"]}>
+                        <NewTicketPage />
+                    </ProtectedRoute>
+                } />
+
+                <Route path="/tickets/:id" element={
+                    <ProtectedRoute requiredRoles={["USER", "ADMIN"]}>
+                        <TicketDetailPage />
+                    </ProtectedRoute>
+                } />
+
+                {/* Tanımsız rota: token varsa tickets, yoksa login */}
+                <Route path="*" element={
+                    token ? <Navigate to="/tickets" /> : <Navigate to="/login" />
+                } />
             </Routes>
         </Router>
     );

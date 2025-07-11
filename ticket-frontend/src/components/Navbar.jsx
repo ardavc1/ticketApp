@@ -1,4 +1,3 @@
-// src/components/Navbar.jsx
 import React, { useState } from "react";
 import {
     AppBar,
@@ -20,7 +19,6 @@ import MenuIcon from "@mui/icons-material/Menu";
 import BugReportIcon from "@mui/icons-material/BugReport";
 import AccountCircle from "@mui/icons-material/AccountCircle";
 import { useNavigate } from "react-router-dom";
-import dashboard from "../pages/Dashboard";
 
 const Navbar = () => {
     const navigate = useNavigate();
@@ -30,27 +28,38 @@ const Navbar = () => {
 
     const username = localStorage.getItem("username") || "kullanici";
 
-    const handleMenu = (event) => {
-        setAnchorEl(event.currentTarget);
-    };
-    const handleClose = () => {
-        setAnchorEl(null);
-    };
+    // ✅ Kullanıcının rolünü token'dan çek
+    const token = localStorage.getItem("token");
+    let role = null;
+    if (token) {
+        try {
+            const decoded = JSON.parse(atob(token.split(".")[1]));
+            role = decoded.role;
+        } catch (e) {
+            console.error("Token decode hatası:", e);
+        }
+    }
+
+    // ✅ Role göre nav item'ları belirle
+    const navItems = [
+        ...(role === "ADMIN" ? [{ label: "Dashboard", path: "/dashboard" }] : []),
+        { label: "Taleplerim", path: "/tickets" },
+        { label: "Yeni Talep", path: "/new" },
+    ];
+
+    const handleMenu = (event) => setAnchorEl(event.currentTarget);
+    const handleClose = () => setAnchorEl(null);
+
     const handleLogout = () => {
         localStorage.removeItem("token");
-        navigate("/");
+        localStorage.removeItem("username");
+        navigate("/login");
     };
+
     const handleNav = (path) => {
         navigate(path);
         setDrawerOpen(false);
     };
-
-    const navItems = [
-        { label: "Dashboard", path: "/dashboard" },
-        { label: "Taleplerim", path: "/tickets" },
-        { label: "Yeni Talep", path: "/new" },
-
-    ];
 
     return (
         <AppBar position="sticky" color="primary" elevation={4}>

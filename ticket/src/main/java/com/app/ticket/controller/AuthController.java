@@ -35,7 +35,9 @@ public class AuthController {
                 ))
                 .orElseThrow(() -> new RuntimeException("Kullanıcı bulunamadı"));
 
-        String token = jwtUtil.generateToken(userDetails.getUsername());
+        User user = userRepository.findByUsername(username).orElseThrow();
+        String token = jwtUtil.generateToken(user.getUsername(), user.getRole().name());
+
         return Map.of("token", token);
 
     }
