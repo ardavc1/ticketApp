@@ -7,6 +7,7 @@ import TicketDetailPage from "./pages/TicketDetailPage";
 import Dashboard from "./pages/Dashboard";
 import NewTicketPage from "./pages/NewTicketPage";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AllTicketsPage from "./pages/AllTicketPage";
 
 function App() {
     const token = localStorage.getItem("token");
@@ -26,6 +27,11 @@ function App() {
                 <Route path="/dashboard" element={
                     <ProtectedRoute requiredRoles={["ADMIN"]}>
                         <Dashboard />
+                    </ProtectedRoute>
+                } />
+                <Route path="/alltickets" element={
+                    <ProtectedRoute requiredRoles={["ADMIN"]}>
+                        <AllTicketsPage />
                     </ProtectedRoute>
                 } />
 

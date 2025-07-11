@@ -63,3 +63,42 @@ export const deleteTicket = async (id) => {
         throw error;
     }
 };
+
+export const getLatestTickets = async (count = 5) => {
+    const token = localStorage.getItem("token");
+    const response = await axios.get(`http://localhost:8080/api/tickets/latest?count=${count}`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    return response.data;
+};
+
+export const getAllTickets = async () => {
+    const token = localStorage.getItem("token");
+    const response = await axios.get("http://localhost:8080/api/tickets", {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    return response.data;
+};
+export const assignTicket = async (id, assignedTo) => {
+    const res = await axios.put(`http://localhost:8080/api/tickets/${id}/assign`, { assignedTo });
+    return res.data;
+};
+export const updateTicketStatus = async (ticketId, status) => {
+    const token = localStorage.getItem("token");
+    const response = await axios.put(
+        `http://localhost:8080/api/tickets/${ticketId}/status`,
+        { status },
+        {
+            headers: {
+                Authorization: `Bearer ${token}`,
+            },
+        }
+    );
+    return response.data;
+};
+
+

@@ -8,13 +8,14 @@ import {
     LineChart, Line, PieChart, Pie, BarChart, Bar,
     XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, LabelList, Legend
 } from "recharts";
-import { getMyTickets } from "../services/ticketService";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import AnalyticsOutlinedIcon from '@mui/icons-material/AnalyticsOutlined';
 import AssignmentOutlinedIcon from '@mui/icons-material/AssignmentOutlined';
 import CheckCircleOutlineOutlinedIcon from '@mui/icons-material/CheckCircleOutlineOutlined';
 import FiberManualRecordIcon from '@mui/icons-material/FiberManualRecord';
+import { getAllTickets, getLatestTickets } from "../services/ticketService";
+
 
 const STATUS_COLORS = {
     OPEN: "warning",
@@ -37,13 +38,21 @@ const CATEGORY_COLORS = {
 
 const Dashboard = () => {
     const [tickets, setTickets] = useState([]);
+    const [latestTickets, setLatestTickets] = useState([]);
     const [chartType, setChartType] = useState("line");
     const navigate = useNavigate();
 
     useEffect(() => {
         const fetch = async () => {
-            const data = await getMyTickets();
-            setTickets(data);
+            try {
+                const all = await getAllTickets(); // Tüm ticketlar
+                setTickets(all);
+
+                const latest = await getLatestTickets(5); // Sadece son 5
+                setLatestTickets(latest);
+            } catch (err) {
+                console.error("Dashboard error", err);
+            }
         };
         fetch();
     }, []);
@@ -51,7 +60,7 @@ const Dashboard = () => {
     const total = tickets.length;
     const open = tickets.filter(t => t.status === "OPEN").length;
     const closed = tickets.filter(t => t.status === "CLOSED").length;
-    const recentTickets = tickets.slice(-5).reverse();
+    const recentTickets = [...latestTickets].reverse();
 
     const priorityData = ["LOW", "MEDIUM", "HIGH"].map(p => ({
         name: p,

@@ -43,6 +43,7 @@ const Navbar = () => {
     // ✅ Role göre nav item'ları belirle
     const navItems = [
         ...(role === "ADMIN" ? [{ label: "Dashboard", path: "/dashboard" }] : []),
+        ...(role === "ADMIN" ? [{ label: "Tüm Talepler", path: "/alltickets" }] : []),
         { label: "Taleplerim", path: "/tickets" },
         { label: "Yeni Talep", path: "/new" },
     ];

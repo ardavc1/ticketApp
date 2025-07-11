@@ -23,9 +23,8 @@ const NewTicketForm = ({ selectedType, onTicketCreated }) => {
         title: "",
         description: "",
         priority: "Orta",
-        assignedTo: "",
         category: selectedType || "",
-        status: "OPEN",
+        status: "OPEN"
     });
 
     useEffect(() => {
@@ -57,8 +56,8 @@ const NewTicketForm = ({ selectedType, onTicketCreated }) => {
                 title: "",
                 description: "",
                 priority: "Orta",
-                assignedTo: "",
                 category: selectedType || "",
+                status: "OPEN"
             });
         } catch (error) {
             console.error("Talep gönderilirken hata:", error);
@@ -131,15 +130,6 @@ const NewTicketForm = ({ selectedType, onTicketCreated }) => {
                             </MenuItem>
                         ))}
                     </TextField>
-
-                    <TextField
-                        name="assignedTo"
-                        label="Atanacak Kişi"
-                        value={form.assignedTo}
-                        onChange={handleChange}
-                        fullWidth
-                        placeholder="kullanici@firma.com"
-                    />
 
                     <Button type="submit" variant="contained" fullWidth size="large">
                         Talep Oluştur
