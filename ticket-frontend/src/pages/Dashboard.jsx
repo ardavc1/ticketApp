@@ -22,18 +22,18 @@ const STATUS_COLORS = {
     CLOSED: "success"
 };
 const PRIORITY_COLORS = {
-    LOW: "#aed581",
-    MEDIUM: "#64b5f6",
+    LOW: "#9eea47",
+    MEDIUM: "#e7ba26",
     HIGH: "#ef5350"
 };
 const CATEGORY_COLORS = {
     GENEL: "#7e57c2",
-    REQUEST: "#42a5f5",
-    FEEDBACK: "#66bb6a",
+    REQUEST: "#59deae",
+    FEEDBACK: "#942dd0",
     ISSUE: "#ef5350",
-    SECURITY: "#ab47bc",
-    "BİLGİ GÜVENLİĞİ İHLALİ": "#ab47bc",
-    "GERİ BİLDİRİM": "#26c6da"
+    SECURITY: "#f3bd45",
+    "BİLGİ GÜVENLİĞİ İHLALİ": "#f3bd45",
+    "GERİ BİLDİRİM": "#942dd0"
 };
 
 const Dashboard = () => {
