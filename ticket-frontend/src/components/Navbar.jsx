@@ -63,7 +63,7 @@ const Navbar = () => {
     };
 
     return (
-        <AppBar position="sticky" color="primary" elevation={4}>
+        <AppBar position="sticky" elevation={4} sx={{ backgroundColor: '#111010' }}>
             <Toolbar>
                 <BugReportIcon sx={{ mr: 1 }} />
                 <Typography
