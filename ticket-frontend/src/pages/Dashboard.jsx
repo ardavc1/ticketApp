@@ -18,11 +18,11 @@ import { getAllTickets, getLatestTickets } from "../services/ticketService";
 
 
 const STATUS_COLORS = {
-    OPEN: "warning",
-    CLOSED: "success"
+    OPEN: "#1c6b03",
+    CLOSED: "#9a1803"
 };
 const PRIORITY_COLORS = {
-    LOW: "#9eea47",
+    LOW: "#6dec43",
     MEDIUM: "#e7ba26",
     HIGH: "#ef5350"
 };
@@ -180,7 +180,11 @@ const Dashboard = () => {
                                         primary={<Typography variant="subtitle1" fontWeight={500}>{ticket.title}</Typography>}
                                         secondary={
                                             <Stack direction="row" spacing={1} flexWrap="wrap" mt={1}>
-                                                <Chip label={`Durum: ${ticket.status}`} color={STATUS_COLORS[ticket.status]} size="small" />
+                                                <Chip label={`${ticket.status}`} sx={{
+                                                    backgroundColor: STATUS_COLORS[ticket.status],
+                                                    color: "#fff",
+                                                    fontWeight: "bold"
+                                                }} size="small" />
                                                 <Chip label={`Öncelik: ${ticket.priority}`} size="small" />
                                                 {ticket.category && <Chip label={`Kategori: ${ticket.category}`} size="small" />}
                                                 <Chip label={`Oluşturan: ${ticket.createdBy}`} size="small" />
