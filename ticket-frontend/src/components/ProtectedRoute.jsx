@@ -9,7 +9,7 @@ const ProtectedRoute = ({ children, requiredRoles }) => {
         const userRole = decoded.role;
 
         if (!requiredRoles.includes(userRole)) {
-            return <Navigate to="/login" />; 
+            return <Navigate to="/login" />;
         }
 
         return children;
