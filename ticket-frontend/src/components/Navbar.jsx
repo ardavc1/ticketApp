@@ -28,7 +28,7 @@ const Navbar = () => {
 
     const username = localStorage.getItem("username") || "kullanici";
 
-    // ✅ Kullanıcının rolünü token'dan çek
+
     const token = localStorage.getItem("token");
     let role = null;
     if (token) {
