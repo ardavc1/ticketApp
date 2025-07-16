@@ -7,14 +7,16 @@ import com.app.ticket.repository.TicketRepository;
 import com.app.ticket.service.TicketService;
 import com.app.ticket.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.core.io.*;
+import org.springframework.http.*;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.*;
 
+import java.io.*;
+import java.nio.file.*;
 import java.security.Principal;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @RestController
 @RequestMapping("/api/tickets")
@@ -111,6 +113,40 @@ public class TicketController {
         ticket.setStatus(status);
         ticketRepository.save(ticket);
         return ResponseEntity.ok().build();
+    }
+
+    @PostMapping("/upload")
+    public ResponseEntity<?> uploadFile(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("ticketId") Long ticketId
+    ) {
+        try {
+            // Dosyayı server'a kaydet
+            String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
+            Path path = Paths.get("uploads/" + fileName);
+            Files.createDirectories(path.getParent());
+            Files.write(path, file.getBytes());
+
+            // Ticket'la eşleştir
+            Ticket ticket = ticketRepository.findById(ticketId).orElseThrow();
+            ticket.setFileName(fileName);
+            ticketRepository.save(ticket);
+
+            return ResponseEntity.ok("Dosya yüklendi");
+        } catch (IOException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Yükleme hatası");
+        }
+    }
+
+    @GetMapping("/download/{fileName}")
+    public ResponseEntity<Resource> downloadFile(@PathVariable String fileName) throws IOException {
+        Path path = Paths.get("uploads/" + fileName);
+        Resource resource = new UrlResource(path.toUri());
+
+        return ResponseEntity.ok()
+                .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
+                .body(resource);
     }
 
 }

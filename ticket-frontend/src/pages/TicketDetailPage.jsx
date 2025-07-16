@@ -12,8 +12,7 @@ import {
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import { getTicketById } from "../services/ticketService";
-import { getRepliesByTicketId, postReply } from "../services/ticketService"; // reply servisleri
+import { getTicketById, getRepliesByTicketId, postReply } from "../services/ticketService";
 
 const priorityMap = {
     LOW: "Düşük",
@@ -46,7 +45,7 @@ const TicketDetailPage = () => {
     const [replies, setReplies] = useState([]);
     const [newReply, setNewReply] = useState("");
 
-    const isAdmin = true; // gerçek projede role-based auth üzerinden kontrol edilmeli
+    const isAdmin = true;
 
     const fetchTicket = async () => {
         try {
@@ -92,7 +91,6 @@ const TicketDetailPage = () => {
         <>
             <Navbar />
             <Container maxWidth="xl" sx={{ mt: 4 }}>
-                {/* Üst Bilgi ve Sekmeler */}
                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
                     <Box>
                         <Typography variant="h6">
@@ -122,7 +120,6 @@ const TicketDetailPage = () => {
                     />
                 </Box>
 
-                {/* İçerik ve Talep Bilgileri */}
                 <Box display="flex" gap={3}>
                     {/* Sol Panel */}
                     <Box flex={1}>
@@ -248,6 +245,26 @@ const TicketDetailPage = () => {
                                     Atanan Kişi
                                 </Typography>
                                 <Typography>{ticket.assignedTo || "Belirtilmedi"}</Typography>
+                            </Box>
+
+                            <Box mb={2}>
+                                <Typography variant="caption" color="text.secondary">
+                                    Dosya
+                                </Typography>
+                                {ticket.fileName ? (
+                                    <Button
+                                        href={`http://localhost:8080/api/tickets/download/${ticket.fileName}`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        variant="outlined"
+                                        size="small"
+                                        sx={{ mt: 1 }}
+                                    >
+                                        Dosyayı İndir
+                                    </Button>
+                                ) : (
+                                    <Typography>Eklenmemiş</Typography>
+                                )}
                             </Box>
 
                             <Box>

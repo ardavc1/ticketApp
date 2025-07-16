@@ -8,7 +8,8 @@ import {
     Paper,
     Stack,
 } from "@mui/material";
-import { createTicket } from "../services/ticketService";
+import axios from "axios";
+import {createTicket, uploadTicketFile} from "../services/ticketService";
 
 const priorities = ["Düşük", "Orta", "Yüksek"];
 
@@ -27,6 +28,8 @@ const NewTicketForm = ({ selectedType, onTicketCreated }) => {
         status: "OPEN"
     });
 
+    const [file, setFile] = useState(null);
+
     useEffect(() => {
         if (selectedType) {
             setForm((prev) => ({ ...prev, category: selectedType }));
@@ -36,6 +39,10 @@ const NewTicketForm = ({ selectedType, onTicketCreated }) => {
     const handleChange = (e) => {
         const { name, value } = e.target;
         setForm((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const handleFileChange = (e) => {
+        setFile(e.target.files[0]);
     };
 
     const handleSubmit = async (e) => {
@@ -48,9 +55,18 @@ const NewTicketForm = ({ selectedType, onTicketCreated }) => {
 
         try {
             const newTicket = await createTicket(payload);
+
+            if (file) {
+                const formData = new FormData();
+                formData.append("file", file);
+                formData.append("ticketId", newTicket.id);
+                await uploadTicketFile(file, newTicket.id);
+            }
+
             if (onTicketCreated) {
                 onTicketCreated(newTicket);
             }
+
             alert("Talep başarıyla oluşturuldu!");
             setForm({
                 title: "",
@@ -59,6 +75,7 @@ const NewTicketForm = ({ selectedType, onTicketCreated }) => {
                 category: selectedType || "",
                 status: "OPEN"
             });
+            setFile(null);
         } catch (error) {
             console.error("Talep gönderilirken hata:", error);
             alert("Talep oluşturulamadı.");
@@ -130,6 +147,11 @@ const NewTicketForm = ({ selectedType, onTicketCreated }) => {
                             </MenuItem>
                         ))}
                     </TextField>
+
+                    <Button variant="outlined" component="label">
+                        {file ? `Dosya: ${file.name}` : "Dosya Ekle"}
+                        <input type="file" hidden onChange={handleFileChange} />
+                    </Button>
 
                     <Button type="submit" variant="contained" fullWidth size="large">
                         Talep Oluştur

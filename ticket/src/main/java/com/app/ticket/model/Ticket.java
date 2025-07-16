@@ -26,6 +26,9 @@ public class Ticket {
 
     private String assignedTo;
 
+    @Column(name = "file_name")
+    private String fileName;
+
     private LocalDateTime createdAt;
 
     private String createdBy;

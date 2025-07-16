@@ -124,5 +124,21 @@ export const postReply = async (ticketId, message) => {
     return res.data;
 };
 
+export const uploadTicketFile = async (file, ticketId) => {
+    const token = localStorage.getItem("token");
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("ticketId", ticketId);
+
+    const response = await axios.post("http://localhost:8080/api/tickets/upload", formData, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+        },
+    });
+
+    return response.data;
+};
+
 
 
