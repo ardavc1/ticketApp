@@ -12,7 +12,12 @@ import {
 } from "@mui/material";
 import { useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import { getTicketById, getRepliesByTicketId, postReply } from "../services/ticketService";
+import {
+    getTicketById,
+    getRepliesByTicketId,
+    postReply,
+    getTicketActivities,
+} from "../services/ticketService";
 
 const priorityMap = {
     LOW: "Düşük",
@@ -44,8 +49,9 @@ const TicketDetailPage = () => {
     const [tabIndex, setTabIndex] = useState(0);
     const [replies, setReplies] = useState([]);
     const [newReply, setNewReply] = useState("");
+    const [activities, setActivities] = useState([]);
 
-    const isAdmin = true;
+    const isAdmin = true; // Geliştirme sürecinde sabit, production'da yetkiden gelmeli
 
     const fetchTicket = async () => {
         try {
@@ -65,9 +71,19 @@ const TicketDetailPage = () => {
         }
     };
 
+    const fetchActivities = async () => {
+        try {
+            const data = await getTicketActivities(id);
+            setActivities(data);
+        } catch (e) {
+            console.error(e);
+        }
+    };
+
     useEffect(() => {
         fetchTicket();
         fetchReplies();
+        fetchActivities();
     }, [id]);
 
     const handleTabChange = (_, newValue) => {
@@ -198,9 +214,23 @@ const TicketDetailPage = () => {
                             )}
 
                             {tabIndex === 2 && (
-                                <Typography variant="body2" color="text.secondary">
-                                    Geçmiş bilgileri yakında burada olacak.
-                                </Typography>
+                                <>
+                                    <Typography variant="subtitle2" gutterBottom>
+                                        Aktivite Geçmişi
+                                    </Typography>
+                                    {activities.length === 0 ? (
+                                        <Typography color="text.secondary">Henüz aktivite yok.</Typography>
+                                    ) : (
+                                        activities.map((activity) => (
+                                            <Paper key={activity.id} variant="outlined" sx={{ p: 2, mb: 1 }}>
+                                                <b>{activity.performedBy}</b> –{" "}
+                                                {new Date(activity.timestamp).toLocaleString("tr-TR")}
+                                                <br />
+                                                {activity.message}
+                                            </Paper>
+                                        ))
+                                    )}
+                                </>
                             )}
                         </Paper>
                     </Box>

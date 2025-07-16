@@ -1,9 +1,7 @@
 package com.app.ticket.controller;
 
-import com.app.ticket.model.Ticket;
-import com.app.ticket.model.User;
-import com.app.ticket.model.UserRole;
-import com.app.ticket.repository.TicketRepository;
+import com.app.ticket.model.*;
+import com.app.ticket.repository.*;
 import com.app.ticket.service.TicketService;
 import com.app.ticket.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -16,6 +14,7 @@ import org.springframework.web.multipart.*;
 import java.io.*;
 import java.nio.file.*;
 import java.security.Principal;
+import java.time.*;
 import java.util.*;
 
 @RestController
@@ -23,7 +22,7 @@ import java.util.*;
 @CrossOrigin(origins = "*")
 @RequiredArgsConstructor
 public class TicketController {
-
+    private final TicketActivityRepository activityRepository;
     private final TicketService service;
     private final UserService userService;
     private final TicketRepository ticketRepository;
@@ -57,7 +56,18 @@ public class TicketController {
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public Ticket createTicket(@RequestBody Ticket ticket, Principal principal) {
         ticket.setCreatedBy(principal.getName());
-        return service.createTicket(ticket);
+        Ticket savedTicket = service.createTicket(ticket);
+
+        // 👇 Aktivite kaydı
+        TicketActivity activity = new TicketActivity();
+        activity.setTicketId(savedTicket.getId());
+        activity.setType("CREATED");
+        activity.setMessage("Ticket oluşturuldu");
+        activity.setPerformedBy(principal.getName());
+        activity.setTimestamp(LocalDateTime.now());
+        activityRepository.save(activity);
+
+        return savedTicket;
     }
 
     @GetMapping("/{id}")
@@ -98,20 +108,42 @@ public class TicketController {
     }
 
     @PutMapping("/{id}/assign")
-    public ResponseEntity<?> assignTicket(@PathVariable Long id, @RequestBody Map<String, String> body) {
+    public ResponseEntity<?> assignTicket(@PathVariable Long id, @RequestBody Map<String, String> body, Principal principal) {
         String assignedTo = body.get("assignedTo");
         Ticket ticket = ticketRepository.findById(id).orElseThrow();
         ticket.setAssignedTo(assignedTo);
         ticketRepository.save(ticket);
+
+        // 👇 Aktivite kaydı
+        TicketActivity activity = new TicketActivity();
+        activity.setTicketId(id);
+        activity.setType("ASSIGNED");
+        activity.setMessage("Ticket, " + assignedTo + " kullanıcısına atandı");
+        activity.setPerformedBy(principal.getName());
+        activity.setTimestamp(LocalDateTime.now());
+        activityRepository.save(activity);
+
         return ResponseEntity.ok().build();
     }
 
     @PutMapping("/{id}/status")
-    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody Map<String, String> body) {
-        String status = body.get("status"); // "OPEN" veya "CLOSED"
+    public ResponseEntity<?> updateStatus(@PathVariable Long id, @RequestBody Map<String, String> body, Principal principal) {
+        String status = body.get("status");
         Ticket ticket = ticketRepository.findById(id).orElseThrow();
+
+        String oldStatus = ticket.getStatus();
         ticket.setStatus(status);
         ticketRepository.save(ticket);
+
+        // 👇 Aktivite kaydı
+        TicketActivity activity = new TicketActivity();
+        activity.setTicketId(id);
+        activity.setType("STATUS_CHANGE");
+        activity.setMessage("Durum " + oldStatus + " → " + status + " olarak değiştirildi");
+        activity.setPerformedBy(principal.getName());
+        activity.setTimestamp(LocalDateTime.now());
+        activityRepository.save(activity);
+
         return ResponseEntity.ok().build();
     }
 
@@ -148,6 +180,22 @@ public class TicketController {
                 .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
                 .body(resource);
     }
+
+    @GetMapping("/{id}/activities")
+    @PreAuthorize("hasAnyRole('USER','ADMIN')")
+    public ResponseEntity<List<TicketActivity>> getTicketActivities(@PathVariable Long id, Principal principal) {
+        Ticket ticket = ticketRepository.findById(id).orElseThrow();
+        String username = principal.getName();
+
+        User user = userService.getByUsername(username);
+        if (!user.getRole().equals(UserRole.ADMIN) && !ticket.getCreatedBy().equals(username)) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+
+        List<TicketActivity> activities = activityRepository.findByTicketIdOrderByTimestampAsc(id);
+        return ResponseEntity.ok(activities);
+    }
+
 
 }
 

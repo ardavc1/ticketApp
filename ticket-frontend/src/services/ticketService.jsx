@@ -140,5 +140,13 @@ export const uploadTicketFile = async (file, ticketId) => {
     return response.data;
 };
 
-
+export const getTicketActivities = async (ticketId) => {
+    const token = localStorage.getItem("token");
+    const response = await axios.get(`http://localhost:8080/api/tickets/${ticketId}/activities`, {
+        headers: {
+            Authorization: `Bearer ${token}`,
+        },
+    });
+    return response.data;
+};
 
