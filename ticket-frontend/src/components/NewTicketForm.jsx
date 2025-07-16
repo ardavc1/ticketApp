@@ -8,7 +8,6 @@ import {
     Paper,
     Stack,
 } from "@mui/material";
-import axios from "axios";
 import {createTicket, uploadTicketFile} from "../services/ticketService";
 
 const priorities = ["Düşük", "Orta", "Yüksek"];
