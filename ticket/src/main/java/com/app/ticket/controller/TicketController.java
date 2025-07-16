@@ -58,7 +58,7 @@ public class TicketController {
         ticket.setCreatedBy(principal.getName());
         Ticket savedTicket = service.createTicket(ticket);
 
-        // 👇 Aktivite kaydı
+
         TicketActivity activity = new TicketActivity();
         activity.setTicketId(savedTicket.getId());
         activity.setType("CREATED");
@@ -87,7 +87,7 @@ public class TicketController {
         if (user.getRole().name().equals("ADMIN") || ticket.getCreatedBy().equals(username)) {
             return ResponseEntity.ok(ticket);
         } else {
-            return ResponseEntity.status(403).<Ticket>build(); // ✅ Buraya dikkat
+            return ResponseEntity.status(403).<Ticket>build();
         }
     }
 
@@ -114,7 +114,7 @@ public class TicketController {
         ticket.setAssignedTo(assignedTo);
         ticketRepository.save(ticket);
 
-        // 👇 Aktivite kaydı
+
         TicketActivity activity = new TicketActivity();
         activity.setTicketId(id);
         activity.setType("ASSIGNED");
@@ -135,7 +135,7 @@ public class TicketController {
         ticket.setStatus(status);
         ticketRepository.save(ticket);
 
-        // 👇 Aktivite kaydı
+
         TicketActivity activity = new TicketActivity();
         activity.setTicketId(id);
         activity.setType("STATUS_CHANGE");
