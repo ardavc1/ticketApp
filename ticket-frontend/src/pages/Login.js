@@ -31,7 +31,7 @@ const Login = () => {
             const token = res.data.token;
             const decoded = JSON.parse(atob(token.split(".")[1]));
             localStorage.setItem("token", token);
-            localStorage.setItem("username", decoded.sub); // username (sub)
+            localStorage.setItem("username", decoded.sub);
             navigate("/tickets");
         } catch (err) {
             setError("Giriş başarısız. Lütfen bilgilerinizi kontrol edin.");
@@ -46,7 +46,7 @@ const Login = () => {
                 role: "USER"
             });
             setRegisterSuccess("Kayıt başarılı! Giriş yapabilirsiniz.");
-            setTab(0); // giriş sekmesine dön
+            setTab(0);
             setUsername("");
             setPassword("");
         } catch (err) {
