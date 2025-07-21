@@ -159,9 +159,11 @@ const AllTicketPage = () => {
                         <MenuItem value="user@firma.com">user@firma.com</MenuItem>
                     </Select>
                 ) : (
-                    <Typography variant="body2">
-                        {row.assignedTo || "—"}
-                    </Typography>
+                    <Box display="flex" alignItems="center" height="100%">
+                        <Typography variant="body2">
+                            {row.assignedTo || "—"}
+                        </Typography>
+                    </Box>
                 ),
         },
         {
