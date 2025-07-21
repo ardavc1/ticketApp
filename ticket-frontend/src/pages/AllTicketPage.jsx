@@ -9,12 +9,13 @@ import {
     Box,
     IconButton,
     Tooltip,
-    Button,
     Chip,
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import SaveIcon from "@mui/icons-material/Check";
 import CloseIcon from "@mui/icons-material/Close";
+import DeleteIcon from "@mui/icons-material/Delete";
+import InfoIcon from "@mui/icons-material/Info";
 import { DataGrid } from "@mui/x-data-grid";
 import { getAllTickets, deleteTicket, updateTicketStatus } from "../services/ticketService";
 import axios from "axios";
@@ -64,9 +65,11 @@ const AllTicketPage = () => {
     const handleSave = async (id) => {
         try {
             const token = localStorage.getItem("token");
-            await axios.put(`http://localhost:8080/api/tickets/${id}/assign`, { assignedTo: editAssignee }, {
-                headers: { Authorization: `Bearer ${token}` },
-            });
+            await axios.put(
+                `http://localhost:8080/api/tickets/${id}/assign`,
+                { assignedTo: editAssignee },
+                { headers: { Authorization: `Bearer ${token}` } }
+            );
             await updateTicketStatus(id, editStatus);
             setTickets((prev) =>
                 prev.map((t) =>
@@ -79,16 +82,18 @@ const AllTicketPage = () => {
         }
     };
 
-    const getCategoryColor = (cat) => ({
-        ISSUE: "#e74c3c",
-        REQUEST: "#27ae60",
-        SECURITY: "#f39c12",
-        FEEDBACK: "#8e44ad",
-    }[cat] || "#95a5a6");
+    const getCategoryColor = (cat) =>
+        ({
+            ISSUE: "#e74c3c",
+            REQUEST: "#27ae60",
+            SECURITY: "#f39c12",
+            FEEDBACK: "#8e44ad",
+        }[cat] || "#95a5a6");
 
-    const filteredTickets = categoryFilter === "ALL"
-        ? tickets
-        : tickets.filter((t) => t.category === categoryFilter);
+    const filteredTickets =
+        categoryFilter === "ALL"
+            ? tickets
+            : tickets.filter((t) => t.category === categoryFilter);
 
     const columns = [
         { field: "id", headerName: "ID", width: 70 },
@@ -99,19 +104,27 @@ const AllTicketPage = () => {
             headerName: "Kategori",
             width: 130,
             renderCell: (params) => (
-                <Chip label={params.value || "Bilinmiyor"} style={{ backgroundColor: getCategoryColor(params.value) + "33", color: getCategoryColor(params.value) }} />
+                <Chip
+                    label={params.value || "Bilinmiyor"}
+                    style={{
+                        backgroundColor: getCategoryColor(params.value) + "22",
+                        color: getCategoryColor(params.value),
+                        fontWeight: "bold",
+                    }}
+                />
             ),
         },
         {
             field: "status",
             headerName: "Durum",
-            width: 120,
+            width: 130,
             renderCell: ({ row }) =>
                 editRow === row.id ? (
                     <Select
                         size="small"
                         value={editStatus}
                         onChange={(e) => setEditStatus(e.target.value)}
+                        fullWidth
                     >
                         <MenuItem value="OPEN">Açık</MenuItem>
                         <MenuItem value="CLOSED">Kapalı</MenuItem>
@@ -119,7 +132,12 @@ const AllTicketPage = () => {
                 ) : (
                     <Chip
                         label={row.status === "OPEN" ? "Açık" : "Kapalı"}
-                        style={{ backgroundColor: row.status === "OPEN" ? "#c8e6c9" : "#ffcdd2", color: row.status === "OPEN" ? "#2e7d32" : "#c62828" }}
+                        style={{
+                            backgroundColor:
+                                row.status === "OPEN" ? "#c8e6c9" : "#ffcdd2",
+                            color: row.status === "OPEN" ? "#2e7d32" : "#c62828",
+                            fontWeight: "bold",
+                        }}
                     />
                 ),
         },
@@ -133,6 +151,7 @@ const AllTicketPage = () => {
                         size="small"
                         value={editAssignee}
                         onChange={(e) => setEditAssignee(e.target.value)}
+                        fullWidth
                     >
                         <MenuItem value="">—</MenuItem>
                         <MenuItem value="admin@firma.com">admin@firma.com</MenuItem>
@@ -140,31 +159,60 @@ const AllTicketPage = () => {
                         <MenuItem value="user@firma.com">user@firma.com</MenuItem>
                     </Select>
                 ) : (
-                    <span>{row.assignedTo || "—"}</span>
+                    <Typography variant="body2">
+                        {row.assignedTo || "—"}
+                    </Typography>
                 ),
         },
         {
             field: "createdAt",
             headerName: "Oluşturulma",
             width: 180,
-            renderCell: ({ value }) => new Date(value).toLocaleString("tr-TR"),
+            renderCell: ({ value }) =>
+                new Date(value).toLocaleString("tr-TR"),
         },
         {
             field: "actions",
-            headerName: "İşlem",
-            width: 130,
+            headerName: "İşlemler",
+            width: 150,
             renderCell: ({ row }) => (
                 <Box display="flex" gap={1}>
                     {editRow === row.id ? (
                         <>
-                            <IconButton onClick={() => handleSave(row.id)} color="success"><SaveIcon /></IconButton>
-                            <IconButton onClick={() => setEditRow(null)} color="error"><CloseIcon /></IconButton>
+                            <Tooltip title="Kaydet">
+                                <IconButton
+                                    color="success"
+                                    onClick={() => handleSave(row.id)}
+                                >
+                                    <SaveIcon />
+                                </IconButton>
+                            </Tooltip>
+                            <Tooltip title="İptal">
+                                <IconButton
+                                    color="error"
+                                    onClick={() => setEditRow(null)}
+                                >
+                                    <CloseIcon />
+                                </IconButton>
+                            </Tooltip>
                         </>
                     ) : (
-                        <Tooltip title="Düzenle"><IconButton onClick={() => handleEdit(row)}><EditIcon /></IconButton></Tooltip>
+                        <Tooltip title="Düzenle">
+                            <IconButton onClick={() => handleEdit(row)}>
+                                <EditIcon />
+                            </IconButton>
+                        </Tooltip>
                     )}
-                    <Button variant="contained" color="primary" size="small" onClick={() => navigate(`/tickets/${row.id}`)}>Detay</Button>
-                    <Button variant="outlined" color="error" size="small" onClick={() => handleDelete(row.id)}>Sil</Button>
+                    <Tooltip title="Detay">
+                        <IconButton onClick={() => navigate(`/tickets/${row.id}`)}>
+                            <InfoIcon />
+                        </IconButton>
+                    </Tooltip>
+                    <Tooltip title="Sil">
+                        <IconButton onClick={() => handleDelete(row.id)} color="error">
+                            <DeleteIcon />
+                        </IconButton>
+                    </Tooltip>
                 </Box>
             ),
         },
@@ -174,9 +222,11 @@ const AllTicketPage = () => {
         <>
             <Navbar />
             <Container maxWidth="xl" sx={{ mt: 4 }}>
-                <Box display="flex" justifyContent="space-between" alignItems="center" mb={2}>
-                    <Typography variant="h4">Tüm Talepler</Typography>
-                    <FormControl sx={{ minWidth: 220 }}>
+                <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+                    <Typography variant="h4" fontWeight={600}>
+                        Tüm Talepler
+                    </Typography>
+                    <FormControl sx={{ minWidth: 240 }}>
                         <InputLabel>Kategori Filtresi</InputLabel>
                         <Select
                             value={categoryFilter}
@@ -199,10 +249,16 @@ const AllTicketPage = () => {
                     autoHeight
                     loading={loading}
                     sx={{
-                        backgroundColor: "white",
+                        backgroundColor: "#fff",
                         borderRadius: 2,
+                        fontSize: 14,
+                        cursor: "pointer",
                         "& .MuiDataGrid-row:hover": {
-                            backgroundColor: "#f5f5f5",
+                            backgroundColor: "#f9f9f9",
+                        },
+                        "& .MuiDataGrid-columnHeaders": {
+                            backgroundColor: "#f0f0f0",
+                            fontWeight: "bold",
                         },
                     }}
                 />
