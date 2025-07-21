@@ -5,7 +5,7 @@ Kurumsal taleplerin (ticket) yönetimini kolaylaştıran, modern görünümlü v
 |                   |               |
 |-------------------|---------------|
 | 👨‍💻 Geliştirici | 🤵 Arda Avcı  |
-| ✨ Son Güncelleme  | 📅 16.07.2025 |
+| ✨ Son Güncelleme  | 📅 21.07.2025 |
 
 ## 🔧 Kullanılan Teknolojiler
 
