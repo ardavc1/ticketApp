@@ -12,7 +12,7 @@ public interface TicketRepository extends JpaRepository<Ticket, Long> {
 
     List<Ticket> findByCreatedBy(String createdBy);
 
-    // En son oluşturulan ticket'ları getir
+
     @Query("SELECT t FROM Ticket t ORDER BY t.createdAt DESC")
     List<Ticket> findLatestTickets(Pageable pageable);
     }
