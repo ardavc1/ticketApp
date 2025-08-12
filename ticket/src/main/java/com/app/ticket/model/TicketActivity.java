@@ -16,7 +16,7 @@ public class TicketActivity {
 
     private Long ticketId;
 
-    private String type; // CREATED, STATUS_CHANGE, ASSIGNED, etc.
+    private String type;
 
     private String message;
 
