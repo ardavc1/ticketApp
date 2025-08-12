@@ -27,7 +27,7 @@ public class TicketController {
     private final UserService userService;
     private final TicketRepository ticketRepository;
 
-    // 🔐 Yalnızca admin tüm ticket'ları görebilir
+    // Yalnızca admin tüm ticket'ları görebilir
     @GetMapping
     @PreAuthorize("hasRole('ADMIN')")
     public List<Ticket> getAllTickets() {
@@ -42,7 +42,7 @@ public class TicketController {
 
 
 
-    // 🔓 Herkes kendi ticket'larını görebilir
+    // Herkes kendi ticket'larını görebilir
     @GetMapping("/my")
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public ResponseEntity<List<Ticket>> getMyTickets(Principal principal) {
@@ -51,7 +51,7 @@ public class TicketController {
         return ResponseEntity.ok(tickets);
     }
 
-    // 🔓 Kullanıcı veya admin ticket oluşturabilir
+    // Kullanıcı veya admin ticket oluşturabilir
     @PostMapping
     @PreAuthorize("hasAnyRole('USER','ADMIN')")
     public Ticket createTicket(@RequestBody Ticket ticket, Principal principal) {
@@ -92,14 +92,14 @@ public class TicketController {
     }
 
 
-    // 🔐 Sadece admin ticket güncelleyebilir (atama, durum vs.)
+    // Sadece admin ticket güncelleyebilir (atama, durum vs.)
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Ticket> updateTicket(@PathVariable Long id, @RequestBody Ticket ticket) {
         return ResponseEntity.ok(service.updateTicket(id, ticket));
     }
 
-    // 🔐 Sadece admin ticket silebilir
+    // Sadece admin ticket silebilir
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Void> deleteTicket(@PathVariable Long id) {
@@ -153,13 +153,12 @@ public class TicketController {
             @RequestParam("ticketId") Long ticketId
     ) {
         try {
-            // Dosyayı server'a kaydet
+
             String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
             Path path = Paths.get("uploads/" + fileName);
             Files.createDirectories(path.getParent());
             Files.write(path, file.getBytes());
-
-            // Ticket'la eşleştir
+            
             Ticket ticket = ticketRepository.findById(ticketId).orElseThrow();
             ticket.setFileName(fileName);
             ticketRepository.save(ticket);
