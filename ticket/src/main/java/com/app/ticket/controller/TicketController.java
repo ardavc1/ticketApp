@@ -158,7 +158,7 @@ public class TicketController {
             Path path = Paths.get("uploads/" + fileName);
             Files.createDirectories(path.getParent());
             Files.write(path, file.getBytes());
-            
+
             Ticket ticket = ticketRepository.findById(ticketId).orElseThrow();
             ticket.setFileName(fileName);
             ticketRepository.save(ticket);
